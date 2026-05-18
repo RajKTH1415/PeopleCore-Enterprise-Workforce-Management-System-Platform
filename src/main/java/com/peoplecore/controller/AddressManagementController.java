@@ -2,10 +2,12 @@ package com.peoplecore.controller;
 
 
 import com.peoplecore.dto.request.AddressRequest;
+import com.peoplecore.dto.request.CreateVerificationRequest;
 import com.peoplecore.dto.request.UpdateAddressRequest;
 import com.peoplecore.dto.request.VerifyAddressRequest;
 import com.peoplecore.dto.response.AddressHistoryResponse;
 import com.peoplecore.dto.response.AddressResponse;
+import com.peoplecore.dto.response.AddressVerificationRequestResponse;
 import com.peoplecore.service.AddressManagementService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -80,5 +82,10 @@ public class AddressManagementController {
     public ResponseEntity<ApiResponse<AddressResponse>> restoreAddress(@PathVariable Long addressId, HttpServletRequest request) {
         AddressResponse response = addressManagementService.restoreAddress(addressId);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Address restored successfully", request.getRequestURI(), response));
+    }
+    @PostMapping("/{addressId}/verification-request")
+    public ResponseEntity<ApiResponse<AddressVerificationRequestResponse>> createVerificationRequest(@PathVariable Long addressId, @RequestBody CreateVerificationRequest request, HttpServletRequest httpServletRequest) {
+        AddressVerificationRequestResponse response = addressManagementService.createRequest(addressId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(), "Verification request created successfully", httpServletRequest.getRequestURI(), response));
     }
 }

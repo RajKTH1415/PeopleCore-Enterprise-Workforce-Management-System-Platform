@@ -39,8 +39,7 @@ public class DocumentAuditController {
             @RequestParam(defaultValue = "DESC")
             String direction,
 
-            HttpServletRequest httpServletRequest
-    ) {
+            HttpServletRequest httpServletRequest) {
 
         PageResponse<EmployeeDocumentAuditResponse> response =
                 documentAuditService.getAuditLogs(
@@ -78,8 +77,7 @@ public class DocumentAuditController {
             @RequestParam(defaultValue = "DESC")
             String direction,
 
-            HttpServletRequest httpServletRequest
-    ) {
+            HttpServletRequest httpServletRequest) {
 
         PageResponse<DocumentAccessLogResponse> response =
                 documentAuditService.getAccessLogs(
@@ -88,15 +86,13 @@ public class DocumentAuditController {
                         size,
                         sortBy,
                         direction,
-                        httpServletRequest
-                );
+                        httpServletRequest);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
                         HttpStatus.OK.value(),
                         "Document access logs fetched successfully",
                         httpServletRequest.getRequestURI(),
-                        response
-                ));
+                        response));
     }
 }

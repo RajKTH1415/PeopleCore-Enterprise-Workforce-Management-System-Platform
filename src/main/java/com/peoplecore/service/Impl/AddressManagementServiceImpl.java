@@ -1,10 +1,12 @@
 package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.request.AddressRequest;
+import com.peoplecore.dto.request.CreateVerificationRequest;
 import com.peoplecore.dto.request.UpdateAddressRequest;
 import com.peoplecore.dto.request.VerifyAddressRequest;
 import com.peoplecore.dto.response.AddressHistoryResponse;
 import com.peoplecore.dto.response.AddressResponse;
+import com.peoplecore.dto.response.AddressVerificationRequestResponse;
 import com.peoplecore.dto.response.GeocodeResponse;
 import com.peoplecore.exception.BadRequestException;
 import com.peoplecore.exception.ResourceNotFoundException;
@@ -28,6 +30,7 @@ import java.util.*;
 @Transactional
 public class AddressManagementServiceImpl implements AddressManagementService {
 
+    private final AddressVerificationRequestRepository addressVerificationRequestRepository;
     private final EmployeeDocumentRepository employeeDocumentRepository;
     private final EmployeeAddressRepository employeeAddressRepository;
     private final EmployeeRepository employeeRepository;
@@ -37,7 +40,8 @@ public class AddressManagementServiceImpl implements AddressManagementService {
     private final StateRepository stateRepository;
     private final CityRepository cityRepository;
 
-    public AddressManagementServiceImpl(EmployeeDocumentRepository employeeDocumentRepository, EmployeeAddressRepository employeeAddressRepository, EmployeeRepository employeeRepository, AddressHistoryRepository addressHistoryRepository, GeocodingService geocodingService, CountryRepository countryRepository, StateRepository stateRepository, CityRepository cityRepository) {
+    public AddressManagementServiceImpl(AddressVerificationRequestRepository addressVerificationRequestRepository, EmployeeDocumentRepository employeeDocumentRepository, EmployeeAddressRepository employeeAddressRepository, EmployeeRepository employeeRepository, AddressHistoryRepository addressHistoryRepository, GeocodingService geocodingService, CountryRepository countryRepository, StateRepository stateRepository, CityRepository cityRepository) {
+        this.addressVerificationRequestRepository = addressVerificationRequestRepository;
         this.employeeDocumentRepository = employeeDocumentRepository;
         this.employeeAddressRepository = employeeAddressRepository;
         this.employeeRepository = employeeRepository;
@@ -564,6 +568,53 @@ public class AddressManagementServiceImpl implements AddressManagementService {
         );
 
         return mapToResponse(restoredAddress);
+    }
+
+    @Override
+    @Transactional
+    public AddressVerificationRequestResponse createRequest(Long addressId, CreateVerificationRequest request) {
+
+        EmployeeAddress address = employeeAddressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
+
+        Employee requester = employeeRepository.findById(request.getRequestedBy())
+                .orElseThrow(() -> new ResourceNotFoundException("Requester not found"));
+
+        AddressVerificationRequest entity = new AddressVerificationRequest();
+        entity.setAddress(address);
+        entity.setEmployee(address.getEmployee());
+        entity.setRequestedBy(requester);
+        entity.setVerificationStatus("PENDING");
+        entity.setRequestedDate(LocalDateTime.now());
+        entity.setVerificationMethod(request.getVerificationMethod());
+        entity.setVerificationNotes(request.getVerificationNotes());
+        entity.setCreatedDate(LocalDateTime.now());
+
+        if (request.getVerificationDocumentId() != null) {
+            EmployeeDocument doc = employeeDocumentRepository.findById(request.getVerificationDocumentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
+            entity.setVerificationDocument(doc);
+        }
+
+        AddressVerificationRequest saved = addressVerificationRequestRepository.save(entity);
+
+        return mapToResponse(saved);
+    }
+
+    private AddressVerificationRequestResponse mapToResponse(AddressVerificationRequest entity) {
+
+        AddressVerificationRequestResponse res = new AddressVerificationRequestResponse();
+
+        res.setId(entity.getId());
+        res.setAddressId(entity.getAddress().getId());
+        res.setEmployeeId(entity.getEmployee().getEmployeeId());
+        res.setVerificationStatus(entity.getVerificationStatus());
+        res.setRequestedBy(entity.getRequestedBy().getEmployeeId());
+        res.setRequestedDate(entity.getRequestedDate());
+        res.setVerificationMethod(entity.getVerificationMethod());
+        res.setVerificationNotes(entity.getVerificationNotes());
+
+        return res;
     }
 
     private List<String> getChangedFields(

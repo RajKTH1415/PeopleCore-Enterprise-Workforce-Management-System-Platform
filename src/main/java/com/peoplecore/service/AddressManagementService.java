@@ -1,10 +1,12 @@
 package com.peoplecore.service;
 
 import com.peoplecore.dto.request.AddressRequest;
+import com.peoplecore.dto.request.CreateVerificationRequest;
 import com.peoplecore.dto.request.UpdateAddressRequest;
 import com.peoplecore.dto.request.VerifyAddressRequest;
 import com.peoplecore.dto.response.AddressHistoryResponse;
 import com.peoplecore.dto.response.AddressResponse;
+import com.peoplecore.dto.response.AddressVerificationRequestResponse;
 
 import java.util.List;
 
@@ -39,4 +41,6 @@ public interface AddressManagementService {
     void permanentDeleteAddress(Long addressId);
 
     AddressResponse restoreAddress(Long addressId);
+
+    AddressVerificationRequestResponse createRequest(Long addressId, CreateVerificationRequest request);
 }

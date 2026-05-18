@@ -28,9 +28,6 @@ public class AddressVerificationRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // =========================================
-    // Address Mapping
-    // =========================================
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
@@ -40,9 +37,6 @@ public class AddressVerificationRequest {
     )
     private EmployeeAddress address;
 
-    // =========================================
-    // Employee Mapping
-    // =========================================
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
@@ -52,17 +46,9 @@ public class AddressVerificationRequest {
     )
     private Employee employee;
 
-    // =========================================
-    // Verification Status
-    // =========================================
-
     @Column(name = "verification_status", nullable = false, length = 20)
     @Builder.Default
     private String verificationStatus = "PENDING";
-
-    // =========================================
-    // Request Details
-    // =========================================
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -74,9 +60,7 @@ public class AddressVerificationRequest {
     @Column(name = "requested_date", nullable = false, updatable = false)
     private LocalDateTime requestedDate;
 
-    // =========================================
-    // Assignment Details
-    // =========================================
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -85,9 +69,6 @@ public class AddressVerificationRequest {
     )
     private Employee assignedTo;
 
-    // =========================================
-    // Verification Information
-    // =========================================
 
     @Column(name = "verification_method", length = 30)
     private String verificationMethod;
@@ -105,9 +86,6 @@ public class AddressVerificationRequest {
     @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
 
-    // =========================================
-    // Completion Details
-    // =========================================
 
     @Column(name = "completed_date")
     private LocalDateTime completedDate;
@@ -119,16 +97,12 @@ public class AddressVerificationRequest {
     )
     private Employee completedBy;
 
-    // =========================================
-    // Audit Fields
-    // =========================================
+
 
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
-    // =========================================
-    // Lifecycle Hooks
-    // =========================================
+
 
     @PrePersist
     public void prePersist() {

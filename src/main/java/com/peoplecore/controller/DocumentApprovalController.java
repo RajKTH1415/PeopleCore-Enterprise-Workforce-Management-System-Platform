@@ -186,49 +186,15 @@ public class DocumentApprovalController {
     }
 
     @PostMapping("/approvals/bulk-approve")
-    public ResponseEntity<ApiResponse<List<DocumentApprovalResponse>>> bulkApprove(
-            @RequestBody BulkApprovalRequest requestBody,
-            HttpServletRequest httpServletRequest
-    ) {
-
-        List<DocumentApprovalResponse> response =
-                documentApprovalService.bulkApprove(
-                        requestBody,
-                        httpServletRequest
-                );
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(
-                        ApiResponse.success(
-                                HttpStatus.OK.value(),
-                                "Bulk approvals completed successfully",
-                                httpServletRequest.getRequestURI(),
-                                response
-                        )
-                );
+    public ResponseEntity<ApiResponse<List<DocumentApprovalResponse>>> bulkApprove(@RequestBody BulkApprovalRequest requestBody, HttpServletRequest httpServletRequest) {
+        List<DocumentApprovalResponse> response = documentApprovalService.bulkApprove(requestBody, httpServletRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Bulk approvals completed successfully", httpServletRequest.getRequestURI(), response));
     }
 
     @PostMapping("/approvals/bulk-reject")
-    public ResponseEntity<ApiResponse<List<DocumentApprovalResponse>>> bulkReject(
-            @RequestBody BulkRejectRequest requestBody,
-            HttpServletRequest httpServletRequest
-    ) {
-
-        List<DocumentApprovalResponse> response =
-                documentApprovalService.bulkReject(
-                        requestBody,
-                        httpServletRequest
-                );
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(
-                        ApiResponse.success(
-                                HttpStatus.OK.value(),
-                                "Bulk rejection completed successfully",
-                                httpServletRequest.getRequestURI(),
-                                response
-                        )
-                );
+    public ResponseEntity<ApiResponse<List<DocumentApprovalResponse>>> bulkReject(@RequestBody BulkRejectRequest requestBody, HttpServletRequest httpServletRequest) {
+        List<DocumentApprovalResponse> response = documentApprovalService.bulkReject(requestBody, httpServletRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Bulk rejection completed successfully", httpServletRequest.getRequestURI(), response));
     }
 
     @GetMapping("/approval/{approvalId}/audit-logs")
@@ -261,15 +227,7 @@ public class DocumentApprovalController {
                         httpServletRequest
                 );
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(
-                        ApiResponse.success(
-                                HttpStatus.OK.value(),
-                                "Approval audit logs fetched successfully",
-                                httpServletRequest.getRequestURI(),
-                                response
-                        )
-                );
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval audit logs fetched successfully", httpServletRequest.getRequestURI(), response));
     }
 
     @PatchMapping("/approval/{approvalId}/remarks")
@@ -279,25 +237,11 @@ public class DocumentApprovalController {
 
             @RequestBody ApprovalRemarksRequest requestBody,
 
-            HttpServletRequest httpServletRequest
-    ) {
+            HttpServletRequest httpServletRequest) {
 
-        DocumentApprovalResponse response =
-                documentApprovalService.updateApprovalRemarks(
-                        approvalId,
-                        requestBody,
-                        httpServletRequest
-                );
+        DocumentApprovalResponse response = documentApprovalService.updateApprovalRemarks(approvalId, requestBody, httpServletRequest);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(
-                        ApiResponse.success(
-                                HttpStatus.OK.value(),
-                                "Approval remarks updated successfully",
-                                httpServletRequest.getRequestURI(),
-                                response
-                        )
-                );
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval remarks updated successfully", httpServletRequest.getRequestURI(), response));
     }
     @PostMapping("/approval/{approvalId}/escalate")
     public ResponseEntity<ApiResponse<DocumentApprovalResponse>> escalateApproval(@PathVariable Long approvalId, @RequestBody ApprovalEscalationRequest requestBody, HttpServletRequest httpServletRequest) {

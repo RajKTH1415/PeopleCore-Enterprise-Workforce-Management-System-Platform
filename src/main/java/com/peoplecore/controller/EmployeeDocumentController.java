@@ -259,8 +259,7 @@ public class EmployeeDocumentController {
                 .contentType(MediaType.parseMediaType(response.getContentType()))
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + response.getFileName() + "\""
-                )
+                        "inline; filename=\"" + response.getFileName() + "\"")
                 .body(response.getResource());
     }
 }

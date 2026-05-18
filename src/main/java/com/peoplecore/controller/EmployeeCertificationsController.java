@@ -129,16 +129,7 @@ public class EmployeeCertificationsController {
             @PathVariable Long certificationId,
             HttpServletRequest httpServletRequest) {
 
-        EmployeeCertificationResponse response =
-                employeeCertificationsService.rejectCertification(employeeId, certificationId);
-
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.success(
-                        HttpStatus.OK.value(),
-                        "Certification rejected successfully",
-                        httpServletRequest.getRequestURI(),
-                        response
-                )
-        );
+        EmployeeCertificationResponse response = employeeCertificationsService.rejectCertification(employeeId, certificationId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Certification rejected successfully", httpServletRequest.getRequestURI(), response));
     }
 }
