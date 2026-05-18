@@ -19,10 +19,6 @@ public class EmployeeAddress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // =========================================
-    // Employee Mapping
-    // =========================================
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "employee_id",
@@ -31,9 +27,6 @@ public class EmployeeAddress {
     )
     private Employee employee;
 
-    // =========================================
-    // Address Details
-    // =========================================
 
     @Column(name = "address_type", nullable = false, length = 30)
     private String addressType;

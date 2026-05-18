@@ -60,4 +60,6 @@ public interface AddressManagementService {
             String employeeId
     );
     List<AddressVerificationRequestResponse> getPendingVerificationRequests();
+
+    AddressResponse getAddressByType(Long employeeId, String addressType);
 }

@@ -722,6 +722,19 @@ public class AddressManagementServiceImpl implements AddressManagementService {
                 .toList();
     }
 
+    @Override
+    public AddressResponse getAddressByType(Long employeeId, String addressType) {
+        Long empId = Long.valueOf(employeeId);
+
+        EmployeeAddress address = employeeAddressRepository
+                .findByEmployee_IdAndAddressType(empId, addressType)
+                .orElseThrow(() ->
+                        new RuntimeException("Address not found for type: " + addressType)
+                );
+
+        return mapToResponse(address);
+    }
+
     private AddressVerificationRequestResponse mapToResponse(AddressVerificationRequest entity) {
 
         AddressVerificationRequestResponse res = new AddressVerificationRequestResponse();

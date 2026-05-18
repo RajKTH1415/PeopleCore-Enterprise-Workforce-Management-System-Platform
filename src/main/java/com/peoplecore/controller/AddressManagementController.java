@@ -123,4 +123,14 @@ public class AddressManagementController {
         List<AddressVerificationRequestResponse> response = addressManagementService.getPendingVerificationRequests();
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Pending verification requests fetched successfully", httpServletRequest.getRequestURI(), response));
     }
+
+    @GetMapping("/employee/{employeeId}/type/{addressType}")
+    public ResponseEntity<ApiResponse<AddressResponse>> getAddressByType(
+            @PathVariable Long employeeId,
+            @PathVariable String addressType,
+            HttpServletRequest httpServletRequest) {
+
+        AddressResponse response = addressManagementService.getAddressByType(employeeId, addressType);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Address fetched by type successfully", httpServletRequest.getRequestURI(), response));
+    }
 }

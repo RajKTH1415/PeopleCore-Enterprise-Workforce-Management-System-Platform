@@ -21,11 +21,12 @@ public interface EmployeeAddressRepository
     List<EmployeeAddress> findByEmployeeIdAndIsDeletedFalse(Long employeeId);
 
     Optional<EmployeeAddress> findByEmployeeIdAndIsPrimaryTrue(Long employeeId);
-
-    List<EmployeeAddress> findByEmployeeIdAndAddressType(
+    Optional<EmployeeAddress> findByEmployee_IdAndAddressType(
             Long employeeId,
             String addressType
     );
+
+
 
     List<EmployeeAddress> findByEmployeeId(Long employeeId);
 
@@ -47,6 +48,7 @@ public interface EmployeeAddressRepository
     findFirstByEmployeeIdAndIsDeletedFalseAndIsActiveTrueOrderByCreatedDateAsc(
             Long employeeId
     );
+
 
 
 }
