@@ -662,6 +662,18 @@ public class AddressManagementServiceImpl implements AddressManagementService {
         return mapToResponse(saved);
     }
 
+    @Override
+    public AddressResponse getPrimaryAddress(Long employeeId) {
+
+        EmployeeAddress employeeAddress = employeeAddressRepository
+                .findByEmployeeIdAndIsPrimaryTrue(employeeId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Primary address not found for employee id: " + employeeId)
+                );
+
+        return mapToResponse(employeeAddress);
+    }
+
     private AddressVerificationRequestResponse mapToResponse(AddressVerificationRequest entity) {
 
         AddressVerificationRequestResponse res = new AddressVerificationRequestResponse();
