@@ -117,4 +117,10 @@ public class AddressManagementController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification requests fetched successfully", httpServletRequest.getRequestURI(), response));
     }
+
+    @GetMapping("/pending-verification")
+    public ResponseEntity<ApiResponse<List<AddressVerificationRequestResponse>>> getPendingVerificationRequests(HttpServletRequest httpServletRequest) {
+        List<AddressVerificationRequestResponse> response = addressManagementService.getPendingVerificationRequests();
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Pending verification requests fetched successfully", httpServletRequest.getRequestURI(), response));
+    }
 }

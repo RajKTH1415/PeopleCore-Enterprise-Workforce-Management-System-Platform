@@ -1,5 +1,6 @@
 package com.peoplecore.repository;
 
+import com.peoplecore.enums.VerificationStatus;
 import com.peoplecore.module.AddressVerificationRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,6 +27,10 @@ public interface AddressVerificationRequestRepository
             @Param("status") String status,
             @Param("assignedTo") Long assignedTo,
             @Param("employeeId") String employeeId
+    );
+
+    List<AddressVerificationRequest> findByVerificationStatusOrderByCreatedDateDesc(
+            String verificationStatus
     );
 
 }

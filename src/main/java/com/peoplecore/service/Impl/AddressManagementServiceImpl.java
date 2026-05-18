@@ -5,6 +5,7 @@ import com.peoplecore.dto.response.AddressHistoryResponse;
 import com.peoplecore.dto.response.AddressResponse;
 import com.peoplecore.dto.response.AddressVerificationRequestResponse;
 import com.peoplecore.dto.response.GeocodeResponse;
+import com.peoplecore.enums.VerificationStatus;
 import com.peoplecore.exception.BadRequestException;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.*;
@@ -705,6 +706,18 @@ public class AddressManagementServiceImpl implements AddressManagementService {
                 );
 
         return verificationRequests.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    public List<AddressVerificationRequestResponse> getPendingVerificationRequests() {
+
+        List<AddressVerificationRequest> requests =
+                addressVerificationRequestRepository
+                        .findByVerificationStatusOrderByCreatedDateDesc(VerificationStatus.PENDING.name());
+
+        return requests.stream()
                 .map(this::mapToResponse)
                 .toList();
     }

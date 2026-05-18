@@ -59,4 +59,5 @@ public interface AddressManagementService {
             Long assignedTo,
             String employeeId
     );
+    List<AddressVerificationRequestResponse> getPendingVerificationRequests();
 }
