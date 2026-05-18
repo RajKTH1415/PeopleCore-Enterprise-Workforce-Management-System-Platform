@@ -639,6 +639,29 @@ public class AddressManagementServiceImpl implements AddressManagementService {
         return mapToResponse(saved);
     }
 
+    @Override
+    @Transactional
+    public AddressVerificationRequestResponse assignVerificationRequest(
+            Long requestId,
+            AssignVerificationRequest request) {
+
+        AddressVerificationRequest entity =
+                addressVerificationRequestRepository.findById(requestId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("Verification request not found"));
+
+        Employee verifier = employeeRepository.findById(request.getAssignedTo())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Verifier not found"));
+
+        entity.setAssignedTo(verifier);
+
+        AddressVerificationRequest saved =
+                addressVerificationRequestRepository.save(entity);
+
+        return mapToResponse(saved);
+    }
+
     private AddressVerificationRequestResponse mapToResponse(AddressVerificationRequest entity) {
 
         AddressVerificationRequestResponse res = new AddressVerificationRequestResponse();

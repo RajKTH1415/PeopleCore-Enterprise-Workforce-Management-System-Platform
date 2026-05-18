@@ -45,4 +45,8 @@ public interface AddressManagementService {
             Long requestId,
             CompleteVerificationRequest request
     );
+    AddressVerificationRequestResponse assignVerificationRequest(
+            Long requestId,
+            AssignVerificationRequest request
+    );
 }
