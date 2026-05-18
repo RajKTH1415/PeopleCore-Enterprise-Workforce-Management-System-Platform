@@ -103,4 +103,18 @@ public class AddressManagementController {
         AddressVerificationRequestResponse response = addressManagementService.getVerificationRequestById(requestId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification request fetched successfully", httpServletRequest.getRequestURI(), response));
     }
+    @GetMapping("/verification-request")
+    public ResponseEntity<ApiResponse<List<AddressVerificationRequestResponse>>> getAllVerificationRequests(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long assignedTo,
+            @RequestParam(required = false) String employeeId,
+            HttpServletRequest httpServletRequest) {
+
+        List<AddressVerificationRequestResponse> response = addressManagementService.getAllVerificationRequests(
+                        status,
+                        assignedTo,
+                        employeeId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification requests fetched successfully", httpServletRequest.getRequestURI(), response));
+    }
 }

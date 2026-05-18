@@ -689,6 +689,26 @@ public class AddressManagementServiceImpl implements AddressManagementService {
         return mapToResponse(verificationRequest);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<AddressVerificationRequestResponse> getAllVerificationRequests(
+            String status,
+            Long assignedTo,
+            String employeeId
+    ) {
+
+        List<AddressVerificationRequest> verificationRequests =
+                addressVerificationRequestRepository.findVerificationRequests(
+                        status,
+                        assignedTo,
+                        employeeId
+                );
+
+        return verificationRequests.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     private AddressVerificationRequestResponse mapToResponse(AddressVerificationRequest entity) {
 
         AddressVerificationRequestResponse res = new AddressVerificationRequestResponse();

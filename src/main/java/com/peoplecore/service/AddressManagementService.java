@@ -53,4 +53,10 @@ public interface AddressManagementService {
     AddressResponse getPrimaryAddress(Long employeeId);
 
     AddressVerificationRequestResponse getVerificationRequestById(Long requestId);
+
+    List<AddressVerificationRequestResponse> getAllVerificationRequests(
+            String status,
+            Long assignedTo,
+            String employeeId
+    );
 }
