@@ -98,4 +98,9 @@ public class AddressManagementController {
         AddressResponse response = addressManagementService.getPrimaryAddress(employeeId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Primary address fetched successfully", httpServletRequest.getRequestURI(), response));
     }
+    @GetMapping("/verification-request/{requestId}")
+    public ResponseEntity<ApiResponse<AddressVerificationRequestResponse>> getVerificationRequestById(@PathVariable Long requestId, HttpServletRequest httpServletRequest) {
+        AddressVerificationRequestResponse response = addressManagementService.getVerificationRequestById(requestId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification request fetched successfully", httpServletRequest.getRequestURI(), response));
+    }
 }

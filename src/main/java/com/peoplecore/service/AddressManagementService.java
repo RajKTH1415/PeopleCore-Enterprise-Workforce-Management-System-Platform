@@ -51,4 +51,6 @@ public interface AddressManagementService {
     );
 
     AddressResponse getPrimaryAddress(Long employeeId);
+
+    AddressVerificationRequestResponse getVerificationRequestById(Long requestId);
 }

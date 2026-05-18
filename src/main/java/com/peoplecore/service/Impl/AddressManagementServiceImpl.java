@@ -674,6 +674,21 @@ public class AddressManagementServiceImpl implements AddressManagementService {
         return mapToResponse(employeeAddress);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public AddressVerificationRequestResponse getVerificationRequestById(Long requestId) {
+
+        AddressVerificationRequest verificationRequest =
+                addressVerificationRequestRepository.findById(requestId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Verification request not found with id: " + requestId
+                                )
+                        );
+
+        return mapToResponse(verificationRequest);
+    }
+
     private AddressVerificationRequestResponse mapToResponse(AddressVerificationRequest entity) {
 
         AddressVerificationRequestResponse res = new AddressVerificationRequestResponse();
