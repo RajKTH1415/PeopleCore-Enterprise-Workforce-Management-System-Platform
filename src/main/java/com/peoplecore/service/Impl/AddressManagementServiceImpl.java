@@ -1,9 +1,6 @@
 package com.peoplecore.service.Impl;
 
-import com.peoplecore.dto.request.AddressRequest;
-import com.peoplecore.dto.request.CreateVerificationRequest;
-import com.peoplecore.dto.request.UpdateAddressRequest;
-import com.peoplecore.dto.request.VerifyAddressRequest;
+import com.peoplecore.dto.request.*;
 import com.peoplecore.dto.response.AddressHistoryResponse;
 import com.peoplecore.dto.response.AddressResponse;
 import com.peoplecore.dto.response.AddressVerificationRequestResponse;
@@ -597,6 +594,47 @@ public class AddressManagementServiceImpl implements AddressManagementService {
         }
 
         AddressVerificationRequest saved = addressVerificationRequestRepository.save(entity);
+
+        return mapToResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public AddressVerificationRequestResponse completeVerificationRequest(
+            Long requestId,
+            CompleteVerificationRequest request) {
+
+        AddressVerificationRequest entity =
+                addressVerificationRequestRepository.findById(requestId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("Verification request not found"));
+
+        Employee completedBy = employeeRepository.findById(request.getCompletedBy())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee not found"));
+
+        entity.setVerificationStatus(request.getVerificationStatus());
+
+        entity.setCompletedBy(completedBy);
+
+        entity.setCompletedDate(LocalDateTime.now());
+
+        entity.setVerificationNotes(request.getVerificationNotes());
+
+        entity.setRejectionReason(request.getRejectionReason());
+
+
+        if ("VERIFIED".equalsIgnoreCase(request.getVerificationStatus())) {
+
+            EmployeeAddress address = entity.getAddress();
+
+            address.setIsVerified(true);
+
+            employeeAddressRepository.save(address);
+        }
+
+        AddressVerificationRequest saved =
+                addressVerificationRequestRepository.save(entity);
 
         return mapToResponse(saved);
     }

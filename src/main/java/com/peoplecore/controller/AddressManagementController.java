@@ -1,17 +1,11 @@
 package com.peoplecore.controller;
-
-
-import com.peoplecore.dto.request.AddressRequest;
-import com.peoplecore.dto.request.CreateVerificationRequest;
-import com.peoplecore.dto.request.UpdateAddressRequest;
-import com.peoplecore.dto.request.VerifyAddressRequest;
+import com.peoplecore.dto.request.*;
 import com.peoplecore.dto.response.AddressHistoryResponse;
 import com.peoplecore.dto.response.AddressResponse;
 import com.peoplecore.dto.response.AddressVerificationRequestResponse;
 import com.peoplecore.service.AddressManagementService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -87,5 +81,10 @@ public class AddressManagementController {
     public ResponseEntity<ApiResponse<AddressVerificationRequestResponse>> createVerificationRequest(@PathVariable Long addressId, @RequestBody CreateVerificationRequest request, HttpServletRequest httpServletRequest) {
         AddressVerificationRequestResponse response = addressManagementService.createRequest(addressId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(), "Verification request created successfully", httpServletRequest.getRequestURI(), response));
+    }
+    @PatchMapping("/verification-request/{requestId}/complete")
+    public ResponseEntity<ApiResponse<AddressVerificationRequestResponse>> completeVerificationRequest(@PathVariable Long requestId, @RequestBody CompleteVerificationRequest request, HttpServletRequest httpServletRequest) {
+        AddressVerificationRequestResponse response = addressManagementService.completeVerificationRequest(requestId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification request completed successfully", httpServletRequest.getRequestURI(), response));
     }
 }

@@ -1,9 +1,6 @@
 package com.peoplecore.service;
 
-import com.peoplecore.dto.request.AddressRequest;
-import com.peoplecore.dto.request.CreateVerificationRequest;
-import com.peoplecore.dto.request.UpdateAddressRequest;
-import com.peoplecore.dto.request.VerifyAddressRequest;
+import com.peoplecore.dto.request.*;
 import com.peoplecore.dto.response.AddressHistoryResponse;
 import com.peoplecore.dto.response.AddressResponse;
 import com.peoplecore.dto.response.AddressVerificationRequestResponse;
@@ -43,4 +40,9 @@ public interface AddressManagementService {
     AddressResponse restoreAddress(Long addressId);
 
     AddressVerificationRequestResponse createRequest(Long addressId, CreateVerificationRequest request);
+
+    AddressVerificationRequestResponse completeVerificationRequest(
+            Long requestId,
+            CompleteVerificationRequest request
+    );
 }
