@@ -140,7 +140,9 @@ public class UserController {
                     responseCode = "400",
                     description = "Invalid request data")})
     @PostMapping("/{id}/UpdateUser")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable("id") String userId , @RequestBody UpdateUserRequest updateUserRequest, HttpServletRequest httpServletRequest){
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable("id") @NotBlank(message = "User ID is required")
+                                                                    @Size(min = 5, max = 30,
+                                                                            message = "Invalid user ID format") String userId ,@Valid @RequestBody UpdateUserRequest updateUserRequest, HttpServletRequest httpServletRequest){
         UserResponse userResponse = userService.updateUser(userId,updateUserRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "User updated successful",httpServletRequest.getRequestURI(),userResponse));
     }

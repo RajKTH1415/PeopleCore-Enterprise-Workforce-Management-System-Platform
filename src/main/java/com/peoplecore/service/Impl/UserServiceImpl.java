@@ -214,46 +214,104 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(String userID, UpdateUserRequest updateUserRequest) {
-        if (updateUserRequest == null){
-            throw new BadRequestException("user request must not be null");
+
+        if (updateUserRequest == null) {
+            throw new BadRequestException(
+                    "Update request must not be null"
+            );
         }
         User user = userRepository.findByUserID(userID)
                 .orElseThrow(()-> new UserNotFoundException("User not found with ID :"+ userID));
 
-        if (updateUserRequest.getUserEmail() != null && !updateUserRequest.getUserEmail().equalsIgnoreCase(user.getUserEmail())){
-            if (userRepository.existsByUserEmail(updateUserRequest.getUserEmail())){
-                throw new BadRequestException("Email already exists");
-            }
-            user.setUserEmail(updateUserRequest.getUserEmail());
-        }
-        if (updateUserRequest.getUserName() != null && !updateUserRequest.getUserName().equalsIgnoreCase(user.getUserName())){
-            if (userRepository.existsByUserName(updateUserRequest.getUserName())){
-                throw new BadRequestException("Username already exits");
-            }
-            user.setUserName(updateUserRequest.getUserName());
+        if (user.getStatus() == Status.DELETED) {
+
+            throw new UserUpdateException(
+                    "Deleted users cannot be updated"
+            );
         }
 
-        if (updateUserRequest.getMobileNumber() != null && !updateUserRequest.getMobileNumber().equalsIgnoreCase(user.getMobileNumber())){
-            if (userRepository.existsByMobileNumber(updateUserRequest.getMobileNumber())){
-               throw new BadRequestException("Mobile number already exists");
+        if (updateUserRequest.getUserEmail() != null &&
+                !updateUserRequest.getUserEmail()
+                        .equalsIgnoreCase(user.getUserEmail())) {
+
+            if (userRepository.existsByUserEmail(
+                    updateUserRequest.getUserEmail())) {
+
+                throw new UserUpdateException(
+                        "Email already exists"
+                );
             }
-            user.setMobileNumber(updateUserRequest.getMobileNumber());
+
+            user.setUserEmail(
+                    updateUserRequest.getUserEmail().trim().toLowerCase()
+            );
         }
 
-        if (updateUserRequest.getUserPassword()!= null && !updateUserRequest.getUserPassword().equalsIgnoreCase(user.getUserPassword())){
-            user.setUserPassword(updateUserRequest.getUserPassword());
-            user.setPasswordChangeDate(LocalDateTime.now());
+
+
+        if (updateUserRequest.getUserName() != null &&
+                !updateUserRequest.getUserName()
+                        .equalsIgnoreCase(user.getUserName())) {
+
+            if (userRepository.existsByUserName(
+                    updateUserRequest.getUserName())) {
+
+                throw new UserUpdateException(
+                        "Username already exists"
+                );
+            }
+
+            user.setUserName(
+                    updateUserRequest.getUserName().trim()
+            );
         }
 
-        if (updateUserRequest.getRoles() != null && !updateUserRequest.getRoles().isEmpty()){
-            Set<Role> updateRole = new HashSet<>();
-            for (RoleName roleName : updateUserRequest.getRoles()){
+        if (updateUserRequest.getMobileNumber() != null &&
+                !updateUserRequest.getMobileNumber()
+                        .equalsIgnoreCase(user.getMobileNumber())) {
+
+            if (userRepository.existsByMobileNumber(
+                    updateUserRequest.getMobileNumber())) {
+
+                throw new UserUpdateException(
+                        "Mobile number already exists"
+                );
+            }
+
+            user.setMobileNumber(
+                    updateUserRequest.getMobileNumber()
+            );
+        }
+
+        if (updateUserRequest.getUserPassword() != null &&
+                !updateUserRequest.getUserPassword().isBlank()) {
+
+            user.setUserPassword(
+                    updateUserRequest.getUserPassword()
+            );
+
+            user.setPasswordChangeDate(
+                    LocalDateTime.now()
+            );
+        }
+
+        if (updateUserRequest.getRoles() != null &&
+                !updateUserRequest.getRoles().isEmpty()) {
+
+            Set<Role> updatedRoles = new HashSet<>();
+
+            for (RoleName roleName : updateUserRequest.getRoles()) {
+
                 Role role = roleRepository.findByName(roleName)
-                        .orElseThrow(()-> new ResourceNotFoundException("Role not found with name : "+ roleName));
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Role not found : " + roleName
+                                ));
 
-                updateRole.add(role);
+                updatedRoles.add(role);
             }
-            user.setRoles(updateRole);
+
+            user.setRoles(updatedRoles);
         }
 
 

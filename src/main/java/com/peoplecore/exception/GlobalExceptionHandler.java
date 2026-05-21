@@ -18,7 +18,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-
+    // ================= DTO VALIDATION =================
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex,
@@ -27,12 +27,10 @@ public class GlobalExceptionHandler {
 
         Map<String, String> validationErrors = new HashMap<>();
 
-        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            validationErrors.put(
-                    error.getField(),
-                    error.getDefaultMessage()
-            );
-        }
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error ->
+                        validationErrors.put(error.getField(), error.getDefaultMessage())
+                );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -46,10 +44,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequestException(
-            BadRequestException exception,
+    // ================= BAD REQUEST (ALL USER OPS) =================
+    @ExceptionHandler({
+            BadRequestException.class,
+            UserRestoreException.class,
+            UserDeactivationException.class,
+            UserActivationException.class,
+            UserDeletionException.class,
+            UserSoftDeleteException.class,
+            UserUpdateException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequest(
+            RuntimeException ex,
             HttpServletRequest request
     ) {
 
@@ -57,17 +63,17 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message(exception.getMessage())
+                .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-
+    // ================= DUPLICATE =================
     @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateResourceException(
-            DuplicateResourceException exception,
+    public ResponseEntity<ErrorResponse> handleDuplicate(
+            DuplicateResourceException ex,
             HttpServletRequest request
     ) {
 
@@ -75,19 +81,20 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.CONFLICT.value())
                 .error(HttpStatus.CONFLICT.getReasonPhrase())
-                .message(exception.getMessage())
+                .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
+    // ================= NOT FOUND =================
     @ExceptionHandler({
             ResourceNotFoundException.class,
             UserNotFoundException.class
     })
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
-            RuntimeException exception,
+    public ResponseEntity<ErrorResponse> handleNotFound(
+            RuntimeException ex,
             HttpServletRequest request
     ) {
 
@@ -95,16 +102,17 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
                 .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .message(exception.getMessage())
+                .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    // ================= UNAUTHORIZED =================
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(
-            UnauthorizedException exception,
+    public ResponseEntity<ErrorResponse> handleUnauthorized(
+            UnauthorizedException ex,
             HttpServletRequest request
     ) {
 
@@ -112,17 +120,17 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
-                .message(exception.getMessage())
+                .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
-
+    // ================= FORBIDDEN =================
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<ErrorResponse> handleForbiddenException(
-            ForbiddenException exception,
+    public ResponseEntity<ErrorResponse> handleForbidden(
+            ForbiddenException ex,
             HttpServletRequest request
     ) {
 
@@ -130,141 +138,16 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.FORBIDDEN.value())
                 .error(HttpStatus.FORBIDDEN.getReasonPhrase())
-                .message(exception.getMessage())
+                .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(
-            Exception exception,
-            HttpServletRequest request
-    ) {
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message("Something went wrong")
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(errorResponse,
-                HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-    @ExceptionHandler(UserRestoreException.class)
-    public ResponseEntity<ErrorResponse> handleUserRestoreException(
-            UserRestoreException ex,
-            HttpServletRequest request
-    ) {
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(
-                errorResponse,
-                HttpStatus.BAD_REQUEST
-        );
-    }
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(
-            ConstraintViolationException ex,
-            HttpServletRequest request
-    ) {
-
-        Map<String, String> validationErrors = new HashMap<>();
-
-        ex.getConstraintViolations().forEach(error -> {
-
-            validationErrors.put(
-                    error.getPropertyPath().toString(),
-                    error.getMessage()
-            );
-        });
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message("Validation Failed")
-                .path(request.getRequestURI())
-                .validationErrors(validationErrors)
-                .build();
-
-        return new ResponseEntity<>(
-                errorResponse,
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    @ExceptionHandler(UserDeactivationException.class)
-    public ResponseEntity<ErrorResponse> handleUserDeactivationException(
-            UserDeactivationException ex,
-            HttpServletRequest request
-    ) {
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(
-                errorResponse,
-                HttpStatus.BAD_REQUEST
-        );
-    }
-    @ExceptionHandler(UserActivationException.class)
-    public ResponseEntity<ErrorResponse> handleUserActivationException(
-            UserActivationException ex,
-            HttpServletRequest request
-    ) {
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(
-                errorResponse,
-                HttpStatus.BAD_REQUEST
-        );
-    }
-    @ExceptionHandler(UserDeletionException.class)
-    public ResponseEntity<ErrorResponse> handleUserDeletionException(
-            UserDeletionException ex,
-            HttpServletRequest request
-    ) {
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(
-                errorResponse,
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
+    // ================= DATABASE ERROR =================
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
+    public ResponseEntity<ErrorResponse> handleDB(
             DataIntegrityViolationException ex,
             HttpServletRequest request
     ) {
@@ -277,29 +160,49 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
 
-        return new ResponseEntity<>(
-                errorResponse,
-                HttpStatus.CONFLICT
-        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(UserSoftDeleteException.class)
-    public ResponseEntity<ErrorResponse> handleUserSoftDeleteException(
-            UserSoftDeleteException ex,
+    // ================= CONSTRAINT VALIDATION =================
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraint(
+            ConstraintViolationException ex,
             HttpServletRequest request
     ) {
+
+        Map<String, String> validationErrors = new HashMap<>();
+
+        ex.getConstraintViolations().forEach(v ->
+                validationErrors.put(v.getPropertyPath().toString(), v.getMessage())
+        );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message(ex.getMessage())
+                .message("Validation Failed")
+                .path(request.getRequestURI())
+                .validationErrors(validationErrors)
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    // ================= GLOBAL FALLBACK =================
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGlobal(
+            Exception ex,
+            HttpServletRequest request
+    ) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .message("Something went wrong")
                 .path(request.getRequestURI())
                 .build();
 
-        return new ResponseEntity<>(
-                errorResponse,
-                HttpStatus.BAD_REQUEST
-        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
