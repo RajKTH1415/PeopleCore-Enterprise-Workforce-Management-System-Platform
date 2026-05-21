@@ -191,7 +191,9 @@ public class UserController {
                     description = "User not found")
     })
     @PatchMapping("/{id}/activate")
-    public ResponseEntity<ApiResponse<UserResponse>> activateUser(@PathVariable("id") String userId, HttpServletRequest httpServletRequest){
+    public ResponseEntity<ApiResponse<UserResponse>> activateUser(@PathVariable("id")@NotBlank(message = "User ID is required")
+                                                                      @Size(min = 5, max = 30,
+                                                                              message = "Invalid user ID format") String userId, HttpServletRequest httpServletRequest){
         UserResponse userResponse = userService.activateUser(userId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "user Activated successful", httpServletRequest.getRequestURI(), userResponse));
     }

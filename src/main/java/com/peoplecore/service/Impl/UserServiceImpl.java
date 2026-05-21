@@ -293,8 +293,30 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse activateUser(String userID) {
+
+        if (userID == null || userID.trim().isEmpty()) {
+
+            throw new BadRequestException(
+                    "User ID cannot be empty"
+            );
+        }
        User user =  userRepository.findByUserID(userID)
                 .orElseThrow(()->  new UserNotFoundException("user not found with ID :"+ userID));
+
+        if (user.getStatus() == Status.DELETED) {
+
+            throw new UserActivationException(
+                    "Deleted users cannot be activated"
+            );
+        }
+
+        if (user.getStatus() == Status.ACTIVE) {
+
+            throw new UserActivationException(
+                    "User is already active"
+            );
+        }
+
         user.setStatus(Status.ACTIVE);
         User savedUser  = userRepository.save(user);
 
