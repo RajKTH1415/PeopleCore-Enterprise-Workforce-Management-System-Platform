@@ -173,7 +173,9 @@ public class UserController {
                     responseCode = "404",
                     description = "User not found")})
     @DeleteMapping("/{id}/deleteUser")
-    public ResponseEntity<ApiResponse<UserResponse>> deleteUser(@PathVariable("id") String userId, HttpServletRequest httpServletRequest){
+    public ResponseEntity<ApiResponse<UserResponse>> deleteUser(@PathVariable("id") @NotBlank(message = "User ID is required")
+                                                                    @Size(min = 5, max = 30,
+                                                                            message = "Invalid user ID format")String userId, HttpServletRequest httpServletRequest){
         UserResponse userResponse = userService.deleteUserById(userId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "User deleted successful", httpServletRequest.getRequestURI(), userResponse));
     }

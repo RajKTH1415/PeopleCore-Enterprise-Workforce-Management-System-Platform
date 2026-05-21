@@ -12,6 +12,7 @@ import com.peoplecore.repository.RoleRepository;
 import com.peoplecore.repository.UserRepository;
 import com.peoplecore.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -161,8 +162,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse deleteUserById(String userID) {
+
+        if (userID == null || userID.trim().isEmpty()) {
+
+            throw new BadRequestException(
+                    "User ID cannot be empty"
+            );
+        }
+
         User user = userRepository.findByUserID(userID)
-                .orElseThrow(()-> new UserNotFoundException("User not found  with ID : "+ userID));
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with ID : " + userID
+                        ));
+
+
+        if (user.getStatus() == Status.DELETED) {
+
+            throw new UserDeletionException(
+                    "User is already marked as deleted"
+            );
+        }
 
         UserResponse response = UserResponse.builder()
                 .userID(user.getUserID())
@@ -175,11 +195,21 @@ public class UserServiceImpl implements UserService {
                 .createdBy(user.getCreatedBy())
                 .updatedBy(user.getUpdatedBy())
                 .build();
-        userRepository.delete(user);
 
-        log.info("Employee deleted with ID: {}", user.getUserEmail());
+        try {
+
+            userRepository.delete(user);
+
+        } catch (DataIntegrityViolationException ex) {
+
+            throw new UserDeletionException(
+                    "User cannot be deleted due to existing references"
+            );
+        }
+
+        log.info("User deleted with email: {}", user.getUserEmail());
+
         return response;
-
     }
 
     @Override
