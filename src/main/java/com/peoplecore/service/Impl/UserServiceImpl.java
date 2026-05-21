@@ -290,8 +290,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse softDeleteUser(String userID) {
 
+        if (userID == null || userID.trim().isEmpty()) {
+
+            throw new BadRequestException(
+                    "User ID cannot be empty"
+            );
+        }
+
         User user = userRepository.findByUserID(userID)
                 .orElseThrow(()-> new UserNotFoundException("user not found with ID :"+ userID));
+
+        if (user.getStatus() == Status.DELETED) {
+
+            throw new UserSoftDeleteException(
+                    "User is already deleted"
+            );
+        }
         user.setStatus(Status.DELETED);
        User savedUser =  userRepository.save(user);
 
