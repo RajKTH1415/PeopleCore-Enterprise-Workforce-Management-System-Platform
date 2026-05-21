@@ -326,8 +326,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse deactivateUser(String userID) {
+
+        if (userID == null || userID.trim().isEmpty()) {
+
+            throw new BadRequestException(
+                    "User ID cannot be empty"
+            );
+        }
         User user  = userRepository.findByUserID(userID)
                 .orElseThrow(()-> new UserNotFoundException("User not found with ID :"+ userID));
+
+        if (user.getStatus() == Status.DELETED) {
+
+            throw new UserDeactivationException(
+                    "Deleted users cannot be deactivated"
+            );
+        }
+
+        if (user.getStatus() == Status.INACTIVE) {
+
+            throw new UserDeactivationException(
+                    "User is already inactive"
+            );
+        }
 
         user.setStatus(Status.INACTIVE);
         User savedUser = userRepository.save(user);
