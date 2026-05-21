@@ -4,6 +4,7 @@ import com.peoplecore.dto.request.UserRequest;
 import com.peoplecore.dto.response.PageResponse;
 import com.peoplecore.dto.response.UserResponse;
 import com.peoplecore.exception.BadRequestException;
+import com.peoplecore.exception.DuplicateResourceException;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.exception.UserNotFoundException;
 import com.peoplecore.module.Role;
@@ -40,9 +41,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(UserRequest userRequest){
-       if (userRequest == null){
-           throw new BadRequestException("User request must not be null");
-       }
         String email = userRequest.getUserEmail().trim().toLowerCase();
         String userName = userRequest.getUserName().trim();
 
@@ -53,10 +51,10 @@ public class UserServiceImpl implements UserService {
                User user = existingUser.get();
 
                if (user.getUserEmail().equalsIgnoreCase(userRequest.getUserEmail())) {
-               throw new BadRequestException("Email already exists");
+               throw new DuplicateResourceException("Email already exists");
            }
            if (user.getUserName().equalsIgnoreCase(userRequest.getUserName())) {
-               throw new BadRequestException("Username already exists");
+               throw new DuplicateResourceException("Username already exists");
            }
        }
            User newUser = new User();
