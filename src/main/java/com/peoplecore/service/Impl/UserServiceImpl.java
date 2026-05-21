@@ -3,10 +3,7 @@ import com.peoplecore.dto.request.UpdateUserRequest;
 import com.peoplecore.dto.request.UserRequest;
 import com.peoplecore.dto.response.PageResponse;
 import com.peoplecore.dto.response.UserResponse;
-import com.peoplecore.exception.BadRequestException;
-import com.peoplecore.exception.DuplicateResourceException;
-import com.peoplecore.exception.ResourceNotFoundException;
-import com.peoplecore.exception.UserNotFoundException;
+import com.peoplecore.exception.*;
 import com.peoplecore.module.Role;
 import com.peoplecore.enums.RoleName;
 import com.peoplecore.enums.Status;
@@ -362,10 +359,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse restoreUser(String userID) {
 
+
+        if (userID == null || userID.trim().isEmpty()) {
+            throw new BadRequestException("User ID cannot be empty");
+        }
         User user = userRepository.findByUserID(userID)
                 .orElseThrow(()-> new UserNotFoundException("User not found with ID :"+ userID));
         if (user.getStatus() != Status.DELETED){
-            throw new BadRequestException("Only deleted users can restore users from the system");
+            throw new UserRestoreException("Only deleted users can restore users from the system");
 
         }
         user.setStatus(Status.ACTIVE);

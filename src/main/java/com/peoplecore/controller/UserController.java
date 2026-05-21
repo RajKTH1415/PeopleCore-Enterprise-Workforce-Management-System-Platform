@@ -12,8 +12,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 )
 @RestController
 @RequestMapping("/api/v1/user")
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -221,7 +225,10 @@ public class UserController {
                     responseCode = "404",
                     description = "User not found")})
     @PatchMapping("/{id}/restore")
-    public ResponseEntity<ApiResponse<UserResponse>> restoreUser(@PathVariable("id") String userId, HttpServletRequest httpServletRequest){
+    public ResponseEntity<ApiResponse<UserResponse>> restoreUser(@PathVariable("id")
+                                                                     @NotBlank(message = "User ID is required")
+                                                                     @Size(min = 5, max = 30,
+                                                                             message = "Invalid user ID format")String userId, HttpServletRequest httpServletRequest){
         UserResponse userResponse = userService.restoreUser(userId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "User Restored successful", httpServletRequest.getRequestURI(), userResponse));
     }

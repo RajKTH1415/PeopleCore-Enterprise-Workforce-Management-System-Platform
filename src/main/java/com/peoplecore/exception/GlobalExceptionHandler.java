@@ -2,6 +2,7 @@ package com.peoplecore.exception;
 
 import com.peoplecore.util.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -152,5 +153,54 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse,
                 HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    @ExceptionHandler(UserRestoreException.class)
+    public ResponseEntity<ErrorResponse> handleUserRestoreException(
+            UserRestoreException ex,
+            HttpServletRequest request
+    ) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return new ResponseEntity<>(
+                errorResponse,
+                HttpStatus.BAD_REQUEST
+        );
+    }
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(
+            ConstraintViolationException ex,
+            HttpServletRequest request
+    ) {
+
+        Map<String, String> validationErrors = new HashMap<>();
+
+        ex.getConstraintViolations().forEach(error -> {
+
+            validationErrors.put(
+                    error.getPropertyPath().toString(),
+                    error.getMessage()
+            );
+        });
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message("Validation Failed")
+                .path(request.getRequestURI())
+                .validationErrors(validationErrors)
+                .build();
+
+        return new ResponseEntity<>(
+                errorResponse,
+                HttpStatus.BAD_REQUEST
+        );
     }
 }
