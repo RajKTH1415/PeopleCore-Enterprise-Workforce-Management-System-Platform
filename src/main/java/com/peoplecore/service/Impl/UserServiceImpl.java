@@ -124,19 +124,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(String userID) {
-        if (userID == null){
-            throw new BadRequestException("User request must not be null");
-        }
-      User user =  userRepository.findByUserID(userID)
-              .orElseThrow(()-> new ResourceNotFoundException("User not found with ID :"+ userID));
 
-        Set<RoleName> roleNames = new HashSet<>();
-        for (Role role : user.getRoles()) {
-            roleNames.add(role.getName());
+        if (userID == null || userID.trim().isEmpty()) {
+            throw new BadRequestException(
+                    "User ID must not be null or empty"
+            );
         }
 
+        User user = userRepository.findByUserID(userID.trim())
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with ID : " + userID
+                        ));
+
+        Set<RoleName> roleNames = user.getRoles()
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
 
         return UserResponse.builder()
+                .id(user.getId())
                 .userID(user.getUserID())
                 .userName(user.getUserName())
                 .userEmail(user.getUserEmail())
@@ -149,8 +156,8 @@ public class UserServiceImpl implements UserService {
                 .mobileNumber(user.getMobileNumber())
                 .city(user.getCity())
                 .state(user.getState())
-                .cluster(user.getCluster())
                 .country(user.getCountry())
+                .cluster(user.getCluster())
                 .roles(roleNames)
                 .build();
     }

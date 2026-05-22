@@ -119,7 +119,9 @@ public class UserController {
                     responseCode = "404",
                     description = "User not found")})
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserByID(@PathVariable  String userId, HttpServletRequest httpServletRequest){
+    public ResponseEntity<ApiResponse<UserResponse>> getUserByID(@PathVariable   @NotBlank(message = "User ID is required")
+                                                                     @Size(min = 5, max = 30,
+                                                                             message = "Invalid user ID format") String userId, HttpServletRequest httpServletRequest){
         UserResponse userResponse = userService.getUserById(userId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "User retrieved successfully", httpServletRequest.getRequestURI(), userResponse));
     }
