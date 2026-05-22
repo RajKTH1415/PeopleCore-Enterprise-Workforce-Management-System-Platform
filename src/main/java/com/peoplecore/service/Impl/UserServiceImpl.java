@@ -572,10 +572,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageResponse<UserResponse> getAllUsers(int page, int size, String sortBy, String direction,  Status status,
-                                                  RoleName role,
-                                                  String name) {
+    public PageResponse<UserResponse> getAllUsers(
+            int page,
+            int size,
+            String sortBy,
+            String direction,
+            Status status,
+            RoleName role,
+            String name) {
 
+        if (page < 0) {
+            throw new BadRequestException("Page index cannot be negative");
+        }
+
+        if (size <= 0) {
+            throw new BadRequestException("Page size must be greater than 0");
+        }
+
+        if (size > 100) {
+            throw new BadRequestException("Page size cannot exceed 100");
+        }
+
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            throw new BadRequestException("SortBy field is required");
+        }
 
         Sort.Direction sortDirection = direction.equalsIgnoreCase("desc")
                 ? Sort.Direction.DESC
@@ -585,8 +605,10 @@ public class UserServiceImpl implements UserService {
                 .and(Sort.by(Sort.Direction.ASC, "userID"));
 
         Pageable pageable = PageRequest.of(page, size, sort);
+
         Page<User> usersPage = userRepository.findUsersWithFilters(
-                status, role, name, pageable);
+                status, role, name, pageable
+        );
 
         List<UserResponse> userResponses = usersPage.getContent()
                 .stream()

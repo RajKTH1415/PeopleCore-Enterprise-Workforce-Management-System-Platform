@@ -12,8 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -78,12 +77,47 @@ public class UserController {
                     responseCode = "500",
                     description = "Internal server error")})
     @GetMapping("/fetche-all-users")
-    public ResponseEntity<ApiResponse<PageResponse<UserResponse>>> getAllUsers(@RequestParam(defaultValue = "0") int page , @RequestParam(defaultValue = "0")int size, @RequestParam(defaultValue = "createdDate") String sortBy,
-                                                                               @RequestParam(defaultValue = "asc") String direction,@RequestParam(required = false) Status status,
-                                                                               @RequestParam(required = false) RoleName role,
-                                                                               @RequestParam(required = false) String name, HttpServletRequest httpServletRequest){
-        PageResponse<UserResponse> usersResponse = userService.getAllUsers(page,size, sortBy, direction,status,role,name);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Users successful fetched", httpServletRequest.getRequestURI(),usersResponse));
+    public ResponseEntity<ApiResponse<PageResponse<UserResponse>>> getAllUsers(
+
+            @RequestParam(defaultValue = "0")
+            @Min(value = 0, message = "Page must be 0 or greater")
+            int page,
+
+            @RequestParam(defaultValue = "10")
+            @Min(value = 1, message = "Size must be greater than 0")
+            @Max(value = 100, message = "Size cannot exceed 100")
+            int size,
+
+            @RequestParam(defaultValue = "createdDate")
+            @NotBlank(message = "SortBy must not be blank")
+            String sortBy,
+
+            @RequestParam(defaultValue = "asc")
+            @Pattern(regexp = "asc|desc", message = "Direction must be asc or desc")
+            String direction,
+
+            @RequestParam(required = false)
+            Status status,
+
+            @RequestParam(required = false)
+            RoleName role,
+
+            @RequestParam(required = false)
+            String name,
+
+            HttpServletRequest httpServletRequest
+    ) {
+
+        PageResponse<UserResponse> usersResponse =
+                userService.getAllUsers(page, size, sortBy, direction, status, role, name);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        HttpStatus.OK.value(),
+                        "Users successfully fetched",
+                        httpServletRequest.getRequestURI(),
+                        usersResponse
+                ));
     }
 
 
