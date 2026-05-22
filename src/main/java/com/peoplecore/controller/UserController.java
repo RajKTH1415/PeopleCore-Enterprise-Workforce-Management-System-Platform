@@ -101,8 +101,9 @@ public class UserController {
                     responseCode = "500",
                     description = "Internal server error")})
     @DeleteMapping("/delete-all")
-    public ResponseEntity<ApiResponse<Void>> deleteAllUsers(HttpServletRequest httpServletRequest) {
-        userService.deleteAllUsers();
+    public ResponseEntity<ApiResponse<Void>> deleteAllUsers( @RequestParam(defaultValue = "false")
+                                                                 boolean confirm,HttpServletRequest httpServletRequest) {
+        userService.deleteAllUsers(confirm);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), httpServletRequest.getRequestURI(),"All users deleted successfully", null));
     }
 

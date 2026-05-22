@@ -163,8 +163,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteAllUsers() {
-        userRepository.deleteAll();
+    public void deleteAllUsers(boolean confirm) {
+
+        if (!confirm) {
+            throw new BadRequestException(
+                    "Confirmation required to delete all users"
+            );
+        }
+
+        long count = userRepository.count();
+
+        if (count == 0) {
+            throw new ResourceNotFoundException(
+                    "No users found to delete"
+            );
+        }
+
+        try {
+            userRepository.deleteAll();
+
+        } catch (Exception ex) {
+            throw new UserBulkDeletionException(
+                    "Failed to delete all users: " + ex.getMessage()
+            );
+        }
     }
 
     @Override

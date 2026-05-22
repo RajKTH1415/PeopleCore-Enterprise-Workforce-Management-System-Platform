@@ -12,7 +12,7 @@ public interface UserService {
 
     UserResponse getUserById(String userID);
 
-    void deleteAllUsers();
+    void deleteAllUsers(boolean confirm);
 
     UserResponse deleteUserById(String userID);
 
