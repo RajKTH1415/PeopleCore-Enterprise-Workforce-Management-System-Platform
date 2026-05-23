@@ -53,8 +53,12 @@ public class StateServiceImpl implements StateService {
     @Override
     public List<StateResponse> getAllStates() {
 
-        return stateRepository.findAll()
-                .stream()
+        List<StateMaster> states = stateRepository.findAll();
+        if (states.isEmpty()) {
+            throw new ResourceNotFoundException("No states found");
+        }
+
+        return states.stream()
                 .map(this::mapToResponse)
                 .toList();
     }
