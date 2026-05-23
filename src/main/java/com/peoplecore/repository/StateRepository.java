@@ -2,6 +2,8 @@ package com.peoplecore.repository;
 
 import com.peoplecore.module.CountryMaster;
 import com.peoplecore.module.StateMaster;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,4 +22,6 @@ public interface StateRepository extends JpaRepository<StateMaster, Long> {
     Optional<StateMaster> findByNameIgnoreCaseAndCountryId(String state, Long id);
 
     Collection<StateMaster> findByCountry(CountryMaster country);
+
+    boolean existsByCode(@NotBlank(message = "State code is required") @Size(max = 10, message = "State code cannot exceed 10 characters") String code);
 }

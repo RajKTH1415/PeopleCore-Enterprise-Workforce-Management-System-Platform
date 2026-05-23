@@ -3,6 +3,8 @@ package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.request.StateRequest;
 import com.peoplecore.dto.response.StateResponse;
+import com.peoplecore.exception.BadRequestException;
+import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.CountryMaster;
 import com.peoplecore.module.StateMaster;
 import com.peoplecore.repository.CountryRepository;
@@ -28,7 +30,13 @@ public class StateServiceImpl implements StateService {
     public StateResponse createState(StateRequest request) {
 
         CountryMaster country = countryRepository.findById(request.getCountryId())
-                .orElseThrow(() -> new RuntimeException("Country not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Country not found"));
+
+        if (stateRepository.existsByCode(request.getCode())) {
+            throw new BadRequestException(
+                    "State already exists with code : " + request.getCode()
+            );
+        }
 
         StateMaster state = StateMaster.builder()
                 .country(country)

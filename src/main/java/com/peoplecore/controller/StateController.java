@@ -5,6 +5,7 @@ import com.peoplecore.dto.response.StateResponse;
 import com.peoplecore.service.StateService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class StateController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<StateResponse>> createState(@RequestBody StateRequest stateRequest, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<StateResponse>> createState(@Valid @RequestBody StateRequest stateRequest, HttpServletRequest httpServletRequest) {
         StateResponse stateResponse = stateService.createState(stateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(), "State created successfully", httpServletRequest.getRequestURI(), stateResponse));
     }
