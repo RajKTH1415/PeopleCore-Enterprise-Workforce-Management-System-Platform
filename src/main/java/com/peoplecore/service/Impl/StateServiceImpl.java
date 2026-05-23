@@ -67,7 +67,16 @@ public class StateServiceImpl implements StateService {
     public List<StateResponse> getStatesByCountry(Long countryId) {
 
         CountryMaster country = countryRepository.findById(countryId)
-                .orElseThrow(() -> new RuntimeException("Country not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Country not found"));
+
+        List<StateMaster> states =
+                stateRepository.findByCountry(country);
+
+        if (states.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No states found for country id: " + countryId
+            );
+        }
 
         return stateRepository.findByCountry(country)
                 .stream()

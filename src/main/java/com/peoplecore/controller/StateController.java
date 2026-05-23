@@ -6,12 +6,15 @@ import com.peoplecore.service.StateService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/states")
 public class StateController {
@@ -35,7 +38,7 @@ public class StateController {
     }
 
     @GetMapping("/country/{countryId}")
-    public ResponseEntity<ApiResponse<List<StateResponse>>> getStatesByCountry(@PathVariable Long countryId, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<List<StateResponse>>> getStatesByCountry(@PathVariable @Positive(message = "Country id must be greater than 0") Long countryId, HttpServletRequest httpServletRequest) {
         List<StateResponse> states = stateService.getStatesByCountry(countryId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "States fetched successfully", httpServletRequest.getRequestURI(), states));
     }
