@@ -12,6 +12,7 @@ import com.peoplecore.repository.CountryRepository;
 import com.peoplecore.repository.StateRepository;
 import com.peoplecore.service.StateService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -126,9 +127,20 @@ public class StateServiceImpl implements StateService {
     public void deleteState(Long id) {
 
         StateMaster state = stateRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("State not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "State not found with id: " + id
+                        ));
 
-        stateRepository.delete(state);
+        try {
+            stateRepository.delete(state);
+
+        } catch (DataIntegrityViolationException ex) {
+
+            throw new BadRequestException(
+                    "State cannot be deleted because it is associated with other records"
+            );
+        }
     }
 
     @Override
