@@ -44,7 +44,7 @@ public class StateController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<StateResponse>> updateState(@PathVariable Long id, @RequestBody StateRequest stateRequest, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<StateResponse>> updateState(@PathVariable  @Positive(message = "State id must be greater than 0")  Long id,@Valid @RequestBody StateRequest stateRequest, HttpServletRequest httpServletRequest) {
         StateResponse stateResponse = stateService.updateState(id, stateRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "State updated successfully", httpServletRequest.getRequestURI(), stateResponse));
     }

@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface StateRepository extends JpaRepository<StateMaster, Long> {
 
     List<StateMaster> findByCountryId(Long countryId);
-
+    boolean existsByCodeAndIdNot(String code, Long id);
 
     Optional<StateMaster> findByNameIgnoreCase(String state);
 
