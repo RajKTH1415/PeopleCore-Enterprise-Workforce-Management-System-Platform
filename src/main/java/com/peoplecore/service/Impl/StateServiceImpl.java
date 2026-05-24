@@ -146,11 +146,19 @@ public class StateServiceImpl implements StateService {
     @Override
     public void deleteAllStates() {
 
-        if (stateRepository.count() == 0) {
-            throw new RuntimeException("No states available to delete");
+        if (!stateRepository.existsBy()) {
+            throw new ResourceNotFoundException(
+                    "No states available to delete"
+            );
         }
 
-        stateRepository.deleteAllInBatch();
+        try {
+            stateRepository.deleteAllInBatch();
+        } catch (DataIntegrityViolationException ex) {
+            throw new BadRequestException(
+                    "States cannot be deleted because they are associated with other records"
+            );
+        }
     }
 
     private StateResponse mapToResponse(StateMaster state) {

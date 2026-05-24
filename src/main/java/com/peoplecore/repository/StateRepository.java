@@ -24,4 +24,6 @@ public interface StateRepository extends JpaRepository<StateMaster, Long> {
     List<StateMaster> findByCountry(CountryMaster country);
 
     boolean existsByCode(@NotBlank(message = "State code is required") @Size(max = 10, message = "State code cannot exceed 10 characters") String code);
+
+    boolean existsBy();
 }
