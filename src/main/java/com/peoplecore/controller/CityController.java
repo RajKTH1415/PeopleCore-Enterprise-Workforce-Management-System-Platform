@@ -6,8 +6,10 @@ import com.peoplecore.service.CityService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,8 +36,9 @@ public class CityController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Cities fetched successfully", httpServletRequest.getRequestURI(), response));
     }
 
+    @Validated
     @GetMapping("/state/{stateId}")
-    public ResponseEntity<ApiResponse<List<CityResponse>>> getCitiesByState(@PathVariable Long stateId, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<List<CityResponse>>> getCitiesByState(@PathVariable  @Min(value = 1, message = "State id must be greater than 0")Long stateId, HttpServletRequest httpServletRequest) {
         List<CityResponse> response = cityService.getCitiesByState(stateId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Cities fetched successfully for state", httpServletRequest.getRequestURI(), response));
     }

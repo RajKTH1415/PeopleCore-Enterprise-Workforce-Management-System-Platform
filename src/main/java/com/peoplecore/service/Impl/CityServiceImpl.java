@@ -1,6 +1,7 @@
 package com.peoplecore.service.Impl;
 import com.peoplecore.dto.request.CityRequest;
 import com.peoplecore.dto.response.CityResponse;
+import com.peoplecore.exception.NoDataFoundException;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.CityMaster;
 import com.peoplecore.module.StateMaster;
@@ -63,12 +64,22 @@ public class CityServiceImpl implements CityService {
     public List<CityResponse> getCitiesByState(Long stateId) {
 
         StateMaster state = stateRepository.findById(stateId)
-                .orElseThrow(() -> new RuntimeException("State not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "State not found with id: " + stateId
+                ));
 
-        return cityRepository.findByState(state)
+        List<CityResponse> cities = cityRepository.findByState(state)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+
+        if (cities.isEmpty()) {
+            throw new NoDataFoundException(
+                    "No cities found for state id: " + stateId
+            );
+        }
+
+        return cities;
     }
 
     @Override
