@@ -1,6 +1,7 @@
 package com.peoplecore.service.Impl;
 import com.peoplecore.dto.request.CityRequest;
 import com.peoplecore.dto.response.CityResponse;
+import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.CityMaster;
 import com.peoplecore.module.StateMaster;
 import com.peoplecore.repository.CityRepository;
@@ -27,7 +28,9 @@ public class CityServiceImpl implements CityService {
     public CityResponse createCity(CityRequest request) {
 
         StateMaster state = stateRepository.findById(request.getStateId())
-                .orElseThrow(() -> new RuntimeException("State not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "State not found with id: " + request.getStateId()
+                ));
 
         CityMaster city = CityMaster.builder()
                 .state(state)

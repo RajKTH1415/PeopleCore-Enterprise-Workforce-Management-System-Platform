@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
@@ -29,5 +30,15 @@ public class ApiResponse<T> {
             .timestamp(LocalDateTime.now())
             .build();
 }
+
+    public static <T> ApiResponse<T> error(HttpStatus status, String message, String path, T data) {
+        return ApiResponse.<T>builder()
+                .status(status.value())
+                .message(message)
+                .path(path)
+                .data(data)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
 
 }

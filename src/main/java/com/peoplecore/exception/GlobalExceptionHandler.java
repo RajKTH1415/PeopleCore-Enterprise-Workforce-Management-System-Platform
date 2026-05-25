@@ -1,5 +1,6 @@
 package com.peoplecore.exception;
 
+import com.peoplecore.util.ApiResponse;
 import com.peoplecore.util.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -22,28 +23,33 @@ public class GlobalExceptionHandler {
 
     // ================= DTO VALIDATION =================
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleValidationException(
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
 
-        Map<String, String> validationErrors = new HashMap<>();
+        Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult().getFieldErrors()
                 .forEach(error ->
-                        validationErrors.put(error.getField(), error.getDefaultMessage())
+                        errors.put(error.getField(), error.getDefaultMessage())
                 );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message("Validation Failed")
-                .path(request.getRequestURI())
-                .validationErrors(validationErrors)
+                .error("Validation Failed")
+                .message("Request validation error")
+                .validationErrors(errors)
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Validation Failed")
+                .path(request.getRequestURI())
+                .data(errorResponse)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.badRequest().body(response);
     }
 
     // ================= BAD REQUEST (ALL USER OPS) =================
@@ -74,20 +80,28 @@ public class GlobalExceptionHandler {
 
     // ================= DUPLICATE =================
     @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicate(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleDuplicate(
             DuplicateResourceException ex,
             HttpServletRequest request
     ) {
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
+        ErrorResponse error = ErrorResponse.builder()
                 .status(HttpStatus.CONFLICT.value())
                 .error(HttpStatus.CONFLICT.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
+                .timestamp(LocalDateTime.now())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
+                .status(HttpStatus.CONFLICT.value())
+                .message("Duplicate Resource")
+                .path(request.getRequestURI())
+                .data(error)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     // ================= NOT FOUND =================

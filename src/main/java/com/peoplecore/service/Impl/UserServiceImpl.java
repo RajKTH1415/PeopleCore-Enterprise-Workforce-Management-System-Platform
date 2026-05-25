@@ -38,37 +38,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse createUser(UserRequest userRequest){
+    public UserResponse createUser(UserRequest userRequest) {
+
         String email = userRequest.getUserEmail().trim().toLowerCase();
         String userName = userRequest.getUserName().trim();
 
-        Optional<User> existingUser  = userRepository.findExistingUser(
-                email , userName);
+        // 1. Separate checks (industry standard)
+        if (userRepository.existsByUserEmail(email)) {
+            throw new DuplicateResourceException("Email already exists");
+        }
 
-           if (existingUser.isPresent()) {
-               User user = existingUser.get();
+        if (userRepository.existsByUserName(userName)) {
+            throw new DuplicateResourceException("Username already exists");
+        }
 
-               if (user.getUserEmail().equalsIgnoreCase(userRequest.getUserEmail())) {
-               throw new DuplicateResourceException("Email already exists");
-           }
-           if (user.getUserName().equalsIgnoreCase(userRequest.getUserName())) {
-               throw new DuplicateResourceException("Username already exists");
-           }
-       }
-           User newUser = new User();
-           newUser.setUserID(generateUserId());
-           newUser.setUserName(userRequest.getUserName());
-           newUser.setUserEmail(userRequest.getUserEmail());
-           newUser.setUserPassword(userRequest.getUserPassword());
-           newUser.setPasswordChangeDate(LocalDateTime.now());
-           newUser.setMobileNumber(userRequest.getMobileNumber());
-           newUser.setCity(userRequest.getCity());
-           newUser.setCountry(userRequest.getCountry());
-           newUser.setCluster(userRequest.getCluster());
-           newUser.setState(userRequest.getState());
-           newUser.setStatus(Status.ACTIVE);
+        // 2. Create user
+        User newUser = new User();
+        newUser.setUserID(generateUserId());
+        newUser.setUserName(userName);
+        newUser.setUserEmail(email); // IMPORTANT: use normalized email
+        newUser.setUserPassword(userRequest.getUserPassword());
 
+        newUser.setPasswordChangeDate(LocalDateTime.now());
+        newUser.setMobileNumber(userRequest.getMobileNumber());
+        newUser.setCity(userRequest.getCity());
+        newUser.setCountry(userRequest.getCountry());
+        newUser.setCluster(userRequest.getCluster());
+        newUser.setState(userRequest.getState());
+        newUser.setStatus(Status.ACTIVE);
+
+        // 3. Roles
         Set<Role> roles = new HashSet<>();
+
         if (userRequest.getRoles() == null || userRequest.getRoles().isEmpty()) {
             roles.add(roleRepository.findByName(RoleName.EMPLOYEE)
                     .orElseThrow(() -> new BadRequestException("Default role not found")));
@@ -79,34 +80,36 @@ public class UserServiceImpl implements UserService {
                 roles.add(role);
             }
         }
-          newUser.setRoles(roles);
 
-           User savedUser = userRepository.save(newUser);
+        newUser.setRoles(roles);
 
-        Set<RoleName> roleNames = new HashSet<>();
-        for (Role role : savedUser.getRoles()) {
-            roleNames.add(role.getName());
-        }
+        // 4. Save
+        User savedUser = userRepository.save(newUser);
 
+        // 5. Response mapping
+        Set<RoleName> roleNames = savedUser.getRoles()
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
 
         return UserResponse.builder()
-                 .id(savedUser.getId())
-                   .userID(savedUser.getUserID())
-                   .userName(savedUser.getUserName())
-                   .userEmail(savedUser.getUserEmail())
-                   .passwordChangeDate(savedUser.getPasswordChangeDate())
-                   .createdDate(savedUser.getCreatedDate())
-                   .updatedDate(savedUser.getUpdatedDate())
-                   .createdBy(savedUser.getCreatedBy())
-                   .updatedBy(savedUser.getUpdatedBy())
-                   .status(savedUser.getStatus())
-                   .mobileNumber(savedUser.getMobileNumber())
-                   .city(savedUser.getCity())
-                   .country(savedUser.getCountry())
-                   .state(savedUser.getState())
-                   .cluster(savedUser.getCluster())
-                   .roles(roleNames)
-                   .build();
+                .id(savedUser.getId())
+                .userID(savedUser.getUserID())
+                .userName(savedUser.getUserName())
+                .userEmail(savedUser.getUserEmail())
+                .passwordChangeDate(savedUser.getPasswordChangeDate())
+                .createdDate(savedUser.getCreatedDate())
+                .updatedDate(savedUser.getUpdatedDate())
+                .createdBy(savedUser.getCreatedBy())
+                .updatedBy(savedUser.getUpdatedBy())
+                .status(savedUser.getStatus())
+                .mobileNumber(savedUser.getMobileNumber())
+                .city(savedUser.getCity())
+                .country(savedUser.getCountry())
+                .state(savedUser.getState())
+                .cluster(savedUser.getCluster())
+                .roles(roleNames)
+                .build();
     }
 
     private String generateUserId() {

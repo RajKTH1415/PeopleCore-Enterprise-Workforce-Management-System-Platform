@@ -5,6 +5,7 @@ import com.peoplecore.dto.response.CityResponse;
 import com.peoplecore.service.CityService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class CityController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CityResponse>> createCity(@RequestBody CityRequest request, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<CityResponse>> createCity(@Valid @RequestBody CityRequest request, HttpServletRequest httpServletRequest) {
         CityResponse response = cityService.createCity(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(), "City created successfully", httpServletRequest.getRequestURI(), response));
     }
