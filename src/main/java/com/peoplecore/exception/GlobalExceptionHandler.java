@@ -241,4 +241,18 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
+
+    @ExceptionHandler(NoDataFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNoData(
+            NoDataFoundException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(
+                        HttpStatus.NOT_FOUND,
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                ));
+    }
 }

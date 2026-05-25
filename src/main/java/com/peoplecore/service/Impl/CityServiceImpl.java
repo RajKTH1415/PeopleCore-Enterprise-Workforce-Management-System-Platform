@@ -47,10 +47,16 @@ public class CityServiceImpl implements CityService {
     @Override
     public List<CityResponse> getAllCities() {
 
-        return cityRepository.findAll()
+        List<CityResponse> cities = cityRepository.findAll()
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+
+        if (cities.isEmpty()) {
+            throw new NoDataFoundException("No cities found");
+        }
+
+        return cities;
     }
 
     @Override
