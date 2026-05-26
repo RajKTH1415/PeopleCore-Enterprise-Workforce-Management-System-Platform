@@ -52,6 +52,10 @@ public class UserServiceImpl implements UserService {
             throw new DuplicateResourceException("Username already exists");
         }
 
+        if (userRepository.existsByMobileNumber(userRequest.getMobileNumber())) {
+            throw new DuplicateResourceException("Mobile number already exists");
+        }
+
         // 2. Create user
         User newUser = new User();
         newUser.setUserID(generateUserId());

@@ -21,7 +21,7 @@ import java.util.Map;
 })
 public class ErrorResponse {
 
-    private int status;
+//    private int status;
 
     private String error;
 

@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
+//                .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
@@ -86,16 +86,16 @@ public class GlobalExceptionHandler {
     ) {
 
         ErrorResponse error = ErrorResponse.builder()
-                .status(HttpStatus.CONFLICT.value())
+//                .status(HttpStatus.CONFLICT.value())
                 .error(HttpStatus.CONFLICT.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
+//                .timestamp(LocalDateTime.now())
                 .build();
 
         ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
                 .status(HttpStatus.CONFLICT.value())
-                .message("Duplicate Resource")
+                .message("Duplicate Resource found")
                 .path(request.getRequestURI())
                 .data(error)
                 .timestamp(LocalDateTime.now())
@@ -116,7 +116,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
+//                .status(HttpStatus.NOT_FOUND.value())
                 .error(HttpStatus.NOT_FOUND.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
@@ -134,7 +134,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNAUTHORIZED.value())
+//                .status(HttpStatus.UNAUTHORIZED.value())
                 .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
@@ -152,7 +152,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.FORBIDDEN.value())
+//                .status(HttpStatus.FORBIDDEN.value())
                 .error(HttpStatus.FORBIDDEN.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
@@ -170,7 +170,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.CONFLICT.value())
+              /*  .status(HttpStatus.CONFLICT.value())*/
                 .error(HttpStatus.CONFLICT.getReasonPhrase())
                 .message("Database integrity violation")
                 .path(request.getRequestURI())
@@ -194,7 +194,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
+//                .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .message("Validation Failed")
                 .path(request.getRequestURI())
@@ -213,7 +213,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+//                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .message("Something went wrong")
                 .path(request.getRequestURI())
@@ -230,7 +230,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+//                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())

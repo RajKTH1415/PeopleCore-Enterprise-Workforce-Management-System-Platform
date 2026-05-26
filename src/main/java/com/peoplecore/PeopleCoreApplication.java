@@ -44,7 +44,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		"com.peoplecore.config",
 		"com.peoplecore.security",
 		"com.peoplecore.repository",
-		"com.peoplecore.util"
+		"com.peoplecore.util",
+		"com.peoplecore.exception"
 })
 @EntityScan(basePackages = {
 		"com.peoplecore.module"
