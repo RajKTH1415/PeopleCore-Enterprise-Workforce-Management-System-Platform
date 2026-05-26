@@ -115,8 +115,10 @@ public class CityServiceImpl implements CityService {
     @Override
     public void deleteAllCities() {
 
-        if (cityRepository.count() == 0) {
-            throw new RuntimeException("No cities available to delete");
+        long count = cityRepository.count();
+
+        if (count == 0) {
+            throw new ResourceNotFoundException("No cities available to delete");
         }
 
         cityRepository.deleteAllInBatch();

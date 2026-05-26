@@ -44,7 +44,7 @@ public class CityController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CityResponse>> updateCity(@PathVariable Long id,@Valid @RequestBody CityRequest request, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<CityResponse>> updateCity(@PathVariable @Min(value = 1, message = "City id must be greater than 0")Long id,@Valid @RequestBody CityRequest request, HttpServletRequest httpServletRequest) {
         CityResponse response = cityService.updateCity(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "City updated successfully", httpServletRequest.getRequestURI(), response));
     }
