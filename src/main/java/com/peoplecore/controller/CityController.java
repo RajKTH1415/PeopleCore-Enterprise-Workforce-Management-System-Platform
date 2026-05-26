@@ -50,7 +50,7 @@ public class CityController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteCity(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<String>> deleteCity(@PathVariable @Min(value = 1, message = "City id must be greater than 0") Long id, HttpServletRequest httpServletRequest) {
         cityService.deleteCity(id);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "City deleted successfully", httpServletRequest.getRequestURI(), null));
     }

@@ -105,7 +105,9 @@ public class CityServiceImpl implements CityService {
     public void deleteCity(Long id) {
 
         CityMaster city = cityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("City not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("City not found with id: " + id)
+                );
 
         cityRepository.delete(city);
     }
