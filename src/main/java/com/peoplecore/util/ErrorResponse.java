@@ -12,7 +12,6 @@ import java.util.Map;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "status",
         "error",
         "message",
         "path",
@@ -20,8 +19,6 @@ import java.util.Map;
         "timestamp"
 })
 public class ErrorResponse {
-
-//    private int status;
 
     private String error;
 

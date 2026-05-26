@@ -7,16 +7,13 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -69,7 +66,6 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-//                .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
@@ -86,16 +82,14 @@ public class GlobalExceptionHandler {
     ) {
 
         ErrorResponse error = ErrorResponse.builder()
-//                .status(HttpStatus.CONFLICT.value())
                 .error(HttpStatus.CONFLICT.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
-//                .timestamp(LocalDateTime.now())
                 .build();
 
         ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
                 .status(HttpStatus.CONFLICT.value())
-                .message("Duplicate Resource found")
+                .message("Resource already exists")
                 .path(request.getRequestURI())
                 .data(error)
                 .timestamp(LocalDateTime.now())
@@ -116,7 +110,6 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-//                .status(HttpStatus.NOT_FOUND.value())
                 .error(HttpStatus.NOT_FOUND.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
@@ -134,7 +127,6 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-//                .status(HttpStatus.UNAUTHORIZED.value())
                 .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
@@ -152,7 +144,6 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-//                .status(HttpStatus.FORBIDDEN.value())
                 .error(HttpStatus.FORBIDDEN.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
@@ -170,7 +161,6 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-              /*  .status(HttpStatus.CONFLICT.value())*/
                 .error(HttpStatus.CONFLICT.getReasonPhrase())
                 .message("Database integrity violation")
                 .path(request.getRequestURI())
@@ -194,7 +184,6 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-//                .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .message("Validation Failed")
                 .path(request.getRequestURI())
@@ -213,7 +202,6 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-//                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .message("Something went wrong")
                 .path(request.getRequestURI())
@@ -230,7 +218,6 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-//                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())

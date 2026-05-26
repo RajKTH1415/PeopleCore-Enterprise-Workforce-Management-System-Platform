@@ -86,10 +86,10 @@ public class CityServiceImpl implements CityService {
     public CityResponse updateCity(Long id, CityRequest request) {
 
         CityMaster city = cityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("City not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("City not found with id: " + id));
 
         StateMaster state = stateRepository.findById(request.getStateId())
-                .orElseThrow(() -> new RuntimeException("State not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("State not found with id: " + request.getStateId()));
 
         city.setState(state);
         city.setCode(request.getCode());
