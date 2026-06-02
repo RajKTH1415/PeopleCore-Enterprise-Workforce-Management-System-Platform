@@ -242,4 +242,17 @@ public class GlobalExceptionHandler {
                         null
                 ));
     }
+    @ExceptionHandler(CountryAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>> handleCountryAlreadyExists(
+            CountryAlreadyExistsException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(
+                       HttpStatus.CONFLICT,
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                ));
+    }
 }

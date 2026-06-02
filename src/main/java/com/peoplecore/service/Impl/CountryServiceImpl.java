@@ -2,6 +2,7 @@ package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.request.CountryRequest;
 import com.peoplecore.dto.response.CountryResponse;
+import com.peoplecore.exception.CountryAlreadyExistsException;
 import com.peoplecore.module.CountryMaster;
 import com.peoplecore.repository.CountryRepository;
 import com.peoplecore.service.CountryService;
@@ -22,8 +23,10 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public CountryResponse createCountry(CountryRequest request) {
 
-        if (countryRepository.existsByCode(request.getCode())) {
-            throw new RuntimeException("Country code already exists");
+        if (countryRepository.existsByCode(request.getCode().trim().toUpperCase())) {
+            throw new CountryAlreadyExistsException(
+                    "Country with code " + request.getCode() + " already exists"
+            );
         }
 
         CountryMaster country = CountryMaster.builder()
