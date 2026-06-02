@@ -61,11 +61,15 @@ public class CountryServiceImpl implements CountryService {
     }
     @Override
     public CountryResponse getCountryById(Long id) {
+
         CountryMaster country = countryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Country not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Country not found with id: " + id
+                        ));
+
         return mapToResponse(country);
     }
-
     @Override
     public CountryResponse updateCountry(Long id, CountryRequest request) {
 
