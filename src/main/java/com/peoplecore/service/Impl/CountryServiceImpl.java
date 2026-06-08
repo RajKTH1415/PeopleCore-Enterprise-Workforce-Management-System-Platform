@@ -3,6 +3,7 @@ package com.peoplecore.service.Impl;
 import com.peoplecore.dto.request.CountryRequest;
 import com.peoplecore.dto.response.CountryResponse;
 import com.peoplecore.exception.CountryAlreadyExistsException;
+import com.peoplecore.exception.DuplicateResourceException;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.CountryMaster;
 import com.peoplecore.repository.CountryRepository;
@@ -74,23 +75,21 @@ public class CountryServiceImpl implements CountryService {
     public CountryResponse updateCountry(Long id, CountryRequest request) {
 
         CountryMaster country = countryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Country not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Country not found with id: " + id));
 
-        if (!country.getCode().equals(request.getCode())
+        // check duplicate code (only if changed)
+        if (!country.getCode().equalsIgnoreCase(request.getCode())
                 && countryRepository.existsByCode(request.getCode())) {
-            throw new RuntimeException("Country code already exists");
+            throw new DuplicateResourceException("Country code already exists: " + request.getCode());
         }
 
         country.setCode(request.getCode());
         country.setName(request.getName());
         country.setDialCode(request.getDialCode());
         country.setCurrencyCode(request.getCurrencyCode());
-
         country.setUpdatedBy("SYSTEM");
 
-        CountryMaster updatedCountry = countryRepository.save(country);
-
-        return mapToResponse(updatedCountry);
+        return mapToResponse(countryRepository.save(country));
     }
 
     @Override

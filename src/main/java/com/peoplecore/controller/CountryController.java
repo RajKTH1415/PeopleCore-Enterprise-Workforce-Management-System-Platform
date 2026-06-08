@@ -41,7 +41,7 @@ public class CountryController {
        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Country fetched successfully", httpServletRequest.getRequestURI(), countryResponse));
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CountryResponse>> updateCountry(@PathVariable Long id, @RequestBody CountryRequest countryRequest, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<CountryResponse>> updateCountry(@PathVariable Long id,  @Valid  @RequestBody CountryRequest countryRequest, HttpServletRequest httpServletRequest) {
         CountryResponse countryResponse = countryService.updateCountry(id, countryRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Country updated successfully", httpServletRequest.getRequestURI(), countryResponse));
     }
