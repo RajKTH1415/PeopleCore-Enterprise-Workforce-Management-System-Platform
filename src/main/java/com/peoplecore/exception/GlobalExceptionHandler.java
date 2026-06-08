@@ -255,4 +255,18 @@ public class GlobalExceptionHandler {
                         null
                 ));
     }
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<ApiResponse<String>> handleInvalidRequest(
+            InvalidRequestException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ApiResponse.error(
+                        HttpStatus.BAD_REQUEST,
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                )
+        );
+    }
 }

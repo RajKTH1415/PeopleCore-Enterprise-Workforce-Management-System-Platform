@@ -6,6 +6,7 @@ import com.peoplecore.service.CountryService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +48,7 @@ public class CountryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteCountry(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<String>> deleteCountry(@PathVariable @Min(value = 1, message = "Country id must be greater than 0") Long id, HttpServletRequest httpServletRequest) {
         countryService.deleteCountry(id);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Country deleted successfully", httpServletRequest.getRequestURI(), null));
     }

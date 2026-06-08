@@ -4,6 +4,7 @@ import com.peoplecore.dto.request.CountryRequest;
 import com.peoplecore.dto.response.CountryResponse;
 import com.peoplecore.exception.CountryAlreadyExistsException;
 import com.peoplecore.exception.DuplicateResourceException;
+import com.peoplecore.exception.InvalidRequestException;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.CountryMaster;
 import com.peoplecore.repository.CountryRepository;
@@ -95,8 +96,16 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public void deleteCountry(Long id) {
 
+        if (id == null || id <= 0) {
+            throw new InvalidRequestException("Country id must be greater than 0");
+        }
+
         CountryMaster country = countryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Country not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Country not found with id: " + id));
+
+        if (!Boolean.TRUE.equals(country.getIsActive())) {
+            throw new DuplicateResourceException("Country is already deleted/inactive");
+        }
 
         country.setIsActive(false);
         country.setUpdatedBy("SYSTEM");
