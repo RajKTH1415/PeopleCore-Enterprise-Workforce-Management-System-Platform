@@ -2,10 +2,7 @@ package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.request.CountryRequest;
 import com.peoplecore.dto.response.CountryResponse;
-import com.peoplecore.exception.CountryAlreadyExistsException;
-import com.peoplecore.exception.DuplicateResourceException;
-import com.peoplecore.exception.InvalidRequestException;
-import com.peoplecore.exception.ResourceNotFoundException;
+import com.peoplecore.exception.*;
 import com.peoplecore.module.CountryMaster;
 import com.peoplecore.repository.CountryRepository;
 import com.peoplecore.service.CountryService;
@@ -118,7 +115,7 @@ public class CountryServiceImpl implements CountryService {
     public void deleteAllCountries() {
 
         if (countryRepository.count() == 0) {
-            throw new RuntimeException("No countries available to delete");
+            throw new NoDataFoundException("No countries available to delete");
         }
 
         countryRepository.deleteAllInBatch();
