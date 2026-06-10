@@ -46,24 +46,6 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Employee lifecycle history fetched successfully",httpServletRequest.getRequestURI(),response));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<EmployeeResponse>>> getAllEmployees(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdDate") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction,
-            @RequestParam(required = false) Status status,
-            @RequestParam(required = false) String department,
-            @RequestParam(required = false) String designation,
-            @RequestParam(required = false) String managerId,
-            @RequestParam(required = false) String search,
-            HttpServletRequest httpServletRequest) {
-
-        PageResponse<EmployeeResponse> response = employeeService.getAllEmployees(
-                page, size, sortBy, direction, status, department, designation, managerId, search);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "All employees fetched successfully", httpServletRequest.getRequestURI(), response));
-    }
-
     @PutMapping("/updateEmployee/{employeeId}")
     public ResponseEntity<ApiResponse<EmployeeResponse>> updateEmployee(@PathVariable("employeeId") String employeeId , @RequestBody UpdateEmployeeRequest updateEmployeeRequest, HttpServletRequest httpServletRequest){
         EmployeeResponse updatedEmployeeResponse = employeeService.updateEmployee(employeeId, updateEmployeeRequest);
