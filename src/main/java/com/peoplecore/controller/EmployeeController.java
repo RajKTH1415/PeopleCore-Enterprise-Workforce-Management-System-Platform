@@ -30,15 +30,6 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.OK.value(), "Employee created successfully", httpServletRequest.getRequestURI(), employeeResponse));
     }
 
-    @GetMapping("/dashboard")
-    public ResponseEntity<ApiResponse<EmployeeDashboardResponse>>
-    getEmployeeDashboard(HttpServletRequest httpServletRequest) {
-
-        EmployeeDashboardResponse response =
-                employeeService.getEmployeeDashboard();
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Employee dashboard fetched successfully",httpServletRequest.getRequestURI(), response));
-    }
-
     @GetMapping("/{employeeId}/lifecycle-history")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getLifecycleHistory(
             @PathVariable String employeeId,
