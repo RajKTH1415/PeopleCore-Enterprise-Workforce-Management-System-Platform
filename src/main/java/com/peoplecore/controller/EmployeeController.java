@@ -89,25 +89,4 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Employee deleted successfully", httpServletRequest.getRequestURI(), employeeResponse));
     }
 
-    @GetMapping("/{employeeId}/manager")
-    public ResponseEntity<ApiResponse<EmployeeResponse>> getManager(@PathVariable String employeeId, HttpServletRequest httpServletRequest){
-        EmployeeResponse employeeResponse = employeeService.getManager(employeeId);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Manager fetched successfully", httpServletRequest.getRequestURI(), employeeResponse));
-    }
-    @GetMapping("/{employeeId}/subordinates")
-    public ResponseEntity<ApiResponse<List<EmployeeResponse.Subordinate>>> getSubordinates(@PathVariable String employeeId, HttpServletRequest httpServletRequest) {
-        List<EmployeeResponse.Subordinate> subOrdinateResponse = employeeService.getSubordinates(employeeId);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Subordinates fetched successfully", httpServletRequest.getRequestURI(), subOrdinateResponse));
-    }
-    @GetMapping("/{employeeId}/subordinates/all")
-    public ResponseEntity<ApiResponse<List<EmployeeResponse.Subordinate>>> getAllSubordinates(@PathVariable String employeeId, HttpServletRequest httpServletRequest) {
-        List<EmployeeResponse.Subordinate> subordinates = employeeService.getAllSubordinates(employeeId);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Subordinates fetched successfully", httpServletRequest.getRequestURI(), subordinates ));
-    }
-    @GetMapping("/{employeeId}/hierarchy")
-    public ResponseEntity<ApiResponse<EmployeeHierarchyResponse>> getHierarchy(@PathVariable("employeeId") String id, HttpServletRequest httpServletRequest) {
-        EmployeeHierarchyResponse employeeHierarchyResponse=employeeService.getEmployeeHierarchy(id);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "GetHierarchy fetch  successfully",httpServletRequest.getRequestURI(),employeeHierarchyResponse));
-    }
-
 }
