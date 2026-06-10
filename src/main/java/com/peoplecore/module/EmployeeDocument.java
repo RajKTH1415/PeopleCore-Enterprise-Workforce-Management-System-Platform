@@ -37,7 +37,10 @@ public class EmployeeDocument {
     @Column(name = "document_category")
     private String documentCategory;
 
+    @Column(name = "title", length = 255)
     private String title;
+
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "file_name")

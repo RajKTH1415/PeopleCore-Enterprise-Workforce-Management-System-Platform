@@ -112,10 +112,7 @@ public class EmployeeAddress {
     @Column(name = "verification_notes", columnDefinition = "TEXT")
     private String verificationNotes;
 
-    // =========================================
     // Status
-    // =========================================
-
     @Column(name = "is_primary", nullable = false)
     @Builder.Default
     private Boolean isPrimary = false;
@@ -128,10 +125,8 @@ public class EmployeeAddress {
     @Builder.Default
     private Boolean isDeleted = false;
 
-    // =========================================
-    // Validity
-    // =========================================
 
+    // Validity
     @Column(name = "effective_from")
     private LocalDate effectiveFrom;
 
@@ -147,10 +142,7 @@ public class EmployeeAddress {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    // =========================================
     // Audit Fields
-    // =========================================
-
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
@@ -163,10 +155,7 @@ public class EmployeeAddress {
     @Column(name = "updated_by", length = 50)
     private String updatedBy;
 
-    // =========================================
     // Lifecycle Hooks
-    // =========================================
-
     @PrePersist
     public void prePersist() {
 

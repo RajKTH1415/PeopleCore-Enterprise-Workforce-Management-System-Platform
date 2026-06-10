@@ -20,19 +20,24 @@ public class DocumentAccessLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "document_ref_id", nullable = false)
     private Long documentRefId;
 
+    @Column(name = "document_id", nullable = false, length = 50)
     private String documentId;
 
+    @Column(name = "accessed_by", nullable = false, length = 50)
     private String accessedBy;
 
+    @Column(name = "access_type", nullable = false, length = 20)
     private String accessType;
 
+    @Column(name = "accessed_at")
     private LocalDateTime accessedAt;
 
     @Column(name = "ip_address", length = 50)
     private String ipAddress;
 
-
+    @Column(name = "user_agent", columnDefinition = "TEXT")
     private String userAgent;
 }

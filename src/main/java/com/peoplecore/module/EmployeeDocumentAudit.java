@@ -35,6 +35,7 @@ public class EmployeeDocumentAudit {
     @Column(name = "file_url", length = 1000)
     private String fileUrl;
 
+    @Column(name = "remarks", columnDefinition = "TEXT")
     private String remarks;
 
     @Column(name = "performed_by")
@@ -44,9 +45,11 @@ public class EmployeeDocumentAudit {
     private LocalDateTime performedAt;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "action_type", length = 50)
     private ActionType actionType;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "access_type", length = 30)
     private AccessType accessType;
 
     @Column(name = "ip_address", length = 50)

@@ -1,18 +1,12 @@
 package com.peoplecore.controller;
 import com.peoplecore.dto.request.*;
-import com.peoplecore.dto.response.EmployeeDashboardResponse;
-import com.peoplecore.dto.response.EmployeeHierarchyResponse;
 import com.peoplecore.dto.response.EmployeeResponse;
-import com.peoplecore.dto.response.PageResponse;
-import com.peoplecore.enums.Status;
 import com.peoplecore.service.EmployeeService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/employee")

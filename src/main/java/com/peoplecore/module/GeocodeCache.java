@@ -39,17 +39,12 @@ public class GeocodeCache {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // =========================================
-    // Address Hash
-    // =========================================
 
+    // Address Hash
     @Column(name = "address_hash", nullable = false, unique = true, length = 64)
     private String addressHash;
 
-    // =========================================
     // Geocode Details
-    // =========================================
-
     @Column(name = "formatted_address", columnDefinition = "TEXT")
     private String formattedAddress;
 
@@ -62,28 +57,21 @@ public class GeocodeCache {
     @Column(name = "place_id", length = 255)
     private String placeId;
 
-    // =========================================
-    // Address Components JSON
-    // =========================================
 
+    // Address Components JSON
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "address_components", columnDefinition = "jsonb")
     private Map<String, Object> addressComponents;
 
-    // =========================================
-    // Audit Fields
-    // =========================================
 
+    // Audit Fields
     @Column(name = "last_used", nullable = false)
     private LocalDateTime lastUsed;
 
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
-    // =========================================
     // Lifecycle Hooks
-    // =========================================
-
     @PrePersist
     public void prePersist() {
 

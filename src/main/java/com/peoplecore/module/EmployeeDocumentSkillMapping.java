@@ -29,7 +29,9 @@ public class EmployeeDocumentSkillMapping {
     @Column(name = "employee_skill_id")
     private Long employeeSkillId;
 
+    @Column(name = "source", length = 30)
     private String source;
+
 
     @Column(name = "confidence_score")
     private BigDecimal confidenceScore;

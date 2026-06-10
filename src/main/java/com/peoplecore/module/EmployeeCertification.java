@@ -30,7 +30,7 @@ public class EmployeeCertification extends Auditable implements Serializable {
     @JoinColumn(name = "certification_id", nullable = false)
     private Certification certification;
 
-    @Column(name = "certificate_number")
+    @Column(name = "certificate_number", length = 255)
     private String certificateNumber;
 
     @Column(name = "issue_date")
@@ -42,20 +42,24 @@ public class EmployeeCertification extends Auditable implements Serializable {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "proof_url")
-    private String proofUrl;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
+    @Column(name = "verified_by", length = 255)
     private String verifiedBy;
 
+    @Column(name = "verified_date")
     private LocalDate verifiedDate;
 
-    @Column(length = 1000)
+
+    @Column(name = "verification_notes", length = 1000)
     private String verificationNotes;
 
-    @Column(name = "file_url")
+    @Column(name = "proof_url", columnDefinition = "TEXT")
+    private String proofUrl;
+
+    @Column(name = "file_url", columnDefinition = "TEXT")
     private String fileUrl;
 
     @Column(name = "file_size")
@@ -64,7 +68,9 @@ public class EmployeeCertification extends Auditable implements Serializable {
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
 
+    @Column(name = "file_name", length = 255)
     private String fileName;
 
+    @Column(name = "file_type", length = 100)
     private String fileType;
 }

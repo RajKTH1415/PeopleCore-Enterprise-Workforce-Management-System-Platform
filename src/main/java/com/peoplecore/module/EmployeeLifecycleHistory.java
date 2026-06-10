@@ -30,8 +30,12 @@ public class EmployeeLifecycleHistory {
    @Column(name = "new_status")
     private String newStatus;
 
+    @Column(name = "changed_at")
     private LocalDateTime changedAt;
+
+    @Column(name = "changed_by", length = 100)
     private String changedBy;
+
 
     @Column(name = "remarks")
     private String remarks;
