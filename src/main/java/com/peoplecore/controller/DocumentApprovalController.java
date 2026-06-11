@@ -128,11 +128,7 @@ public class DocumentApprovalController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approvals fetched successfully", httpServletRequest.getRequestURI(), response));
     }
 
-    @GetMapping("/approval/dashboard")
-    public ResponseEntity<ApiResponse<ApprovalDashboardResponse>> getApprovalDashboard(HttpServletRequest httpServletRequest) {
-        ApprovalDashboardResponse response = documentApprovalService.getApprovalDashboard(httpServletRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval dashboard fetched successfully",httpServletRequest.getRequestURI(), response));
-    }
+
 
     @GetMapping("/my-approvals")
     public ResponseEntity<ApiResponse<PageResponse<DocumentApprovalResponse>>> getMyApprovals(
@@ -248,12 +244,5 @@ public class DocumentApprovalController {
         DocumentApprovalResponse response = documentApprovalService.escalateApproval(approvalId, requestBody, httpServletRequest);
        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval escalated successfully", httpServletRequest.getRequestURI(), response));
     }
-
-    @GetMapping("/approval/statistics")
-    public ResponseEntity<ApiResponse<ApprovalStatisticsResponse>> getApprovalStatistics(HttpServletRequest httpServletRequest) {
-        ApprovalStatisticsResponse response = documentApprovalService.getApprovalStatistics(httpServletRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval statistics fetched successfully", httpServletRequest.getRequestURI(), response));
-    }
-
 
 }
