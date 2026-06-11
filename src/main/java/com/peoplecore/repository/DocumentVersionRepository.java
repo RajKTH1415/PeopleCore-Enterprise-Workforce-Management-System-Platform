@@ -11,4 +11,8 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
     List<DocumentVersionHistory> findByDocumentRefIdOrderByVersionDesc(Long documentRefId);
 
     Optional<DocumentVersionHistory> findByDocumentIdAndVersion(String documentId, Integer version);
+
+    List<DocumentVersionHistory> findByDocumentIdOrderByVersionDesc(
+            String documentId
+    );
 }

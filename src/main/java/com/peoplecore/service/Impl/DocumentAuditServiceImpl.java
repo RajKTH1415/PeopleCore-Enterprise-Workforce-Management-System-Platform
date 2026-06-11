@@ -1,12 +1,16 @@
 package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.response.DocumentAccessLogResponse;
+import com.peoplecore.dto.response.DocumentVersionResponse;
 import com.peoplecore.dto.response.EmployeeDocumentAuditResponse;
 import com.peoplecore.dto.response.PageResponse;
+import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.DocumentAccessLog;
+import com.peoplecore.module.DocumentVersionHistory;
 import com.peoplecore.module.EmployeeDocumentAudit;
 import com.peoplecore.repository.DocumentAccessLogRepository;
 import com.peoplecore.repository.DocumentAuditRepository;
+import com.peoplecore.repository.DocumentVersionRepository;
 import com.peoplecore.service.DocumentAuditService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
@@ -15,13 +19,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DocumentAuditServiceImpl implements DocumentAuditService {
 
+    private final DocumentVersionRepository documentVersionRepository;
     private final DocumentAuditRepository documentAuditRepository;
     private final DocumentAccessLogRepository documentAccessLogRepository;
 
-    public DocumentAuditServiceImpl(DocumentAuditRepository documentAuditRepository, DocumentAccessLogRepository documentAccessLogRepository) {
+    public DocumentAuditServiceImpl(DocumentVersionRepository documentVersionRepository, DocumentAuditRepository documentAuditRepository, DocumentAccessLogRepository documentAccessLogRepository) {
+        this.documentVersionRepository = documentVersionRepository;
         this.documentAuditRepository = documentAuditRepository;
         this.documentAccessLogRepository = documentAccessLogRepository;
     }
@@ -117,6 +125,41 @@ public class DocumentAuditServiceImpl implements DocumentAuditService {
                 .totalElements(response.getTotalElements())
                 .totalPages(response.getTotalPages())
                 .last(response.isLast())
+                .build();
+    }
+
+    @Override
+    public List<DocumentVersionResponse> getDocumentVersions(
+            String documentId) {
+
+        List<DocumentVersionHistory> versions =
+                documentVersionRepository
+                        .findByDocumentIdOrderByVersionDesc(documentId);
+
+        if (versions.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No version history found for document : "
+                            + documentId);
+        }
+
+        return versions.stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
+
+    private DocumentVersionResponse convertToResponse(
+            DocumentVersionHistory version) {
+
+        return DocumentVersionResponse.builder()
+                .id(version.getId())
+                .documentId(version.getDocumentId())
+                .version(version.getVersion())
+                .fileName(version.getFileName())
+                .fileSize(version.getFileSize())
+                .storageKey(version.getStorageKey())
+                .versionComment(version.getVersionComment())
+                .uploadedBy(version.getUploadedBy())
+                .uploadedAt(version.getUploadedAt())
                 .build();
     }
 }
