@@ -1,9 +1,6 @@
 package com.peoplecore.controller;
 
-import com.peoplecore.dto.response.DocumentAccessLogResponse;
-import com.peoplecore.dto.response.DocumentVersionResponse;
-import com.peoplecore.dto.response.EmployeeDocumentAuditResponse;
-import com.peoplecore.dto.response.PageResponse;
+import com.peoplecore.dto.response.*;
 import com.peoplecore.service.DocumentAuditService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -102,5 +99,10 @@ public class DocumentAuditController {
     public ResponseEntity<ApiResponse<List<DocumentVersionResponse>>> getDocumentVersions(@PathVariable String documentId, HttpServletRequest httpServletRequest) {
         List<DocumentVersionResponse> documentVersionResponse = documentAuditService.getDocumentVersions(documentId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Document version history fetched successfully", httpServletRequest.getRequestURI(), documentVersionResponse));
+    }
+    @GetMapping("/{documentId}/verification-history")
+    public ResponseEntity<ApiResponse<List<DocumentVerificationHistoryResponse>>> getVerificationHistory(@PathVariable Long documentId, HttpServletRequest httpServletRequest) {
+        List<DocumentVerificationHistoryResponse> documentVerificationHistoryResponse = documentAuditService.getVerificationHistory(documentId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Document verification history fetched successfully",httpServletRequest.getRequestURI(),documentVerificationHistoryResponse));
     }
 }

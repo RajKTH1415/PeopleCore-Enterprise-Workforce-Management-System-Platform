@@ -1,9 +1,6 @@
 package com.peoplecore.service;
 
-import com.peoplecore.dto.response.DocumentAccessLogResponse;
-import com.peoplecore.dto.response.DocumentVersionResponse;
-import com.peoplecore.dto.response.EmployeeDocumentAuditResponse;
-import com.peoplecore.dto.response.PageResponse;
+import com.peoplecore.dto.response.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -27,7 +24,7 @@ public interface DocumentAuditService {
             HttpServletRequest request
     );
 
-    List<DocumentVersionResponse> getDocumentVersions(
-            String documentId
-    );
+    List<DocumentVersionResponse> getDocumentVersions(String documentId);
+
+    List<DocumentVerificationHistoryResponse> getVerificationHistory(Long documentId);
 }

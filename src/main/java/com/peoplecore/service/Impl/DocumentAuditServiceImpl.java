@@ -1,9 +1,6 @@
 package com.peoplecore.service.Impl;
 
-import com.peoplecore.dto.response.DocumentAccessLogResponse;
-import com.peoplecore.dto.response.DocumentVersionResponse;
-import com.peoplecore.dto.response.EmployeeDocumentAuditResponse;
-import com.peoplecore.dto.response.PageResponse;
+import com.peoplecore.dto.response.*;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.DocumentAccessLog;
 import com.peoplecore.module.DocumentVersionHistory;
@@ -145,6 +142,43 @@ public class DocumentAuditServiceImpl implements DocumentAuditService {
         return versions.stream()
                 .map(this::convertToResponse)
                 .toList();
+    }
+
+    @Override
+    public List<DocumentVerificationHistoryResponse> getVerificationHistory(Long documentId) {
+
+        List<String> actions = List.of(
+                "VERIFY",
+                "REJECT"
+        );
+
+        List<EmployeeDocumentAudit> audits =
+                documentAuditRepository.findByDocumentIdAndActionTypeInOrderByPerformedAtDesc(
+                        documentId,
+                        actions
+                );
+
+        return audits.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    private DocumentVerificationHistoryResponse mapToResponse(
+            EmployeeDocumentAudit audit) {
+
+        return DocumentVerificationHistoryResponse.builder()
+                .id(audit.getId())
+                .documentId(audit.getDocumentId())
+                .employeeId(audit.getEmployeeId())
+                .actionType(audit.getActionType().name())
+                .status(audit.getStatus())
+                .remarks(audit.getRemarks())
+                .performedBy(audit.getPerformedBy())
+                .performedAt(audit.getPerformedAt())
+                .ipAddress(audit.getIpAddress())
+                .oldValue(audit.getOldValue())
+                .newValue(audit.getNewValue())
+                .build();
     }
 
     private DocumentVersionResponse convertToResponse(

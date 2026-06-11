@@ -17,4 +17,9 @@ public interface DocumentAuditRepository extends JpaRepository<EmployeeDocumentA
             Long documentId,
             Pageable pageable
     );
+    List<EmployeeDocumentAudit>
+    findByDocumentIdAndActionTypeInOrderByPerformedAtDesc(
+            Long documentId,
+            List<String> actionTypes
+    );
 }
