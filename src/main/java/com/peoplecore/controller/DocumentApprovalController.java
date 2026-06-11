@@ -55,39 +55,6 @@ public class DocumentApprovalController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Bulk rejection completed successfully", httpServletRequest.getRequestURI(), response));
     }
 
-    @GetMapping("/approval/{approvalId}/audit-logs")
-    public ResponseEntity<ApiResponse<PageResponse<ApprovalAuditLogResponse>>> getApprovalAuditLogs(
-
-            @PathVariable Long approvalId,
-
-            @RequestParam(defaultValue = "0")
-            int page,
-
-            @RequestParam(defaultValue = "10")
-            int size,
-
-            @RequestParam(defaultValue = "actionAt")
-            String sortBy,
-
-            @RequestParam(defaultValue = "DESC")
-            String direction,
-
-            HttpServletRequest httpServletRequest
-    ) {
-
-        PageResponse<ApprovalAuditLogResponse> response =
-                documentApprovalService.getApprovalAuditLogs(
-                        approvalId,
-                        page,
-                        size,
-                        sortBy,
-                        direction,
-                        httpServletRequest
-                );
-
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval audit logs fetched successfully", httpServletRequest.getRequestURI(), response));
-    }
-
     @PatchMapping("/approval/{approvalId}/remarks")
     public ResponseEntity<ApiResponse<DocumentApprovalResponse>> updateApprovalRemarks(
 

@@ -1,5 +1,6 @@
 package com.peoplecore.controller;
 
+import com.peoplecore.dto.response.ApprovalAuditLogResponse;
 import com.peoplecore.dto.response.DocumentApprovalResponse;
 import com.peoplecore.dto.response.PageResponse;
 import com.peoplecore.service.DocumentApprovalService;
@@ -133,6 +134,73 @@ public class DocumentApprovalQueryController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Pending approvals fetched successfully", httpServletRequest.getRequestURI(), response));
     }
 
+    @GetMapping("/approval/{approvalId}/audit-logs")
+    public ResponseEntity<ApiResponse<PageResponse<ApprovalAuditLogResponse>>> getApprovalAuditLogs(
+
+            @PathVariable Long approvalId,
+
+            @RequestParam(defaultValue = "0")
+            int page,
+
+            @RequestParam(defaultValue = "10")
+            int size,
+
+            @RequestParam(defaultValue = "actionAt")
+            String sortBy,
+
+            @RequestParam(defaultValue = "DESC")
+            String direction,
+
+            HttpServletRequest httpServletRequest
+    ) {
+
+        PageResponse<ApprovalAuditLogResponse> response =
+                documentApprovalService.getApprovalAuditLogs(
+                        approvalId,
+                        page,
+                        size,
+                        sortBy,
+                        direction,
+                        httpServletRequest
+                );
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval audit logs fetched successfully", httpServletRequest.getRequestURI(), response));
+    }
+
+    @GetMapping("/my-pending-actions")
+    public ResponseEntity<ApiResponse<PageResponse<DocumentApprovalResponse>>> getMyPendingActions(
+
+            @RequestParam(defaultValue = "0")
+            int page,
+
+            @RequestParam(defaultValue = "10")
+            int size,
+
+            @RequestParam(defaultValue = "requestedAt")
+            String sortBy,
+
+            @RequestParam(defaultValue = "DESC")
+            String direction,
+
+            HttpServletRequest httpServletRequest) {
+
+        PageResponse<DocumentApprovalResponse> response =
+                documentApprovalService.getMyPendingActions(
+                        page,
+                        size,
+                        sortBy,
+                        direction,
+                        httpServletRequest
+                );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        HttpStatus.OK.value(),
+                        "Pending action items fetched successfully",
+                        httpServletRequest.getRequestURI(),
+                        response
+                ));
+    }
 
 
 }
