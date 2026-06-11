@@ -255,9 +255,5 @@ public class DocumentApprovalController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval statistics fetched successfully", httpServletRequest.getRequestURI(), response));
     }
 
-    @PostMapping("/{documentId}/assign-approval-workflow")
-    public ResponseEntity<ApiResponse<List<DocumentApprovalWorkflow>>> assignApprovalWorkflow(@PathVariable String documentId, @RequestBody ApprovalWorkflowRequest requestBody, HttpServletRequest httpServletRequest) {
-        List<DocumentApprovalWorkflow> response = documentApprovalService.assignApprovalWorkflow(documentId, requestBody, httpServletRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval workflow assigned successfully", httpServletRequest.getRequestURI(), response));
-    }
+
 }
