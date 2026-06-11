@@ -22,13 +22,13 @@ public class DocumentApprovalDashboardController {
     }
 
 
-    @GetMapping("/approval/dashboard")
+    @GetMapping
     public ResponseEntity<ApiResponse<ApprovalDashboardResponse>> getApprovalDashboard(HttpServletRequest httpServletRequest) {
         ApprovalDashboardResponse response = documentApprovalService.getApprovalDashboard(httpServletRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval dashboard fetched successfully",httpServletRequest.getRequestURI(), response));
     }
 
-    @GetMapping("/approval/statistics")
+    @GetMapping("/statistics")
     public ResponseEntity<ApiResponse<ApprovalStatisticsResponse>> getApprovalStatistics(HttpServletRequest httpServletRequest) {
         ApprovalStatisticsResponse response = documentApprovalService.getApprovalStatistics(httpServletRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval statistics fetched successfully", httpServletRequest.getRequestURI(), response));

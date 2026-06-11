@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/documents")
+@RequestMapping("/api/v1/documents/audit")
 public class DocumentAuditController {
 
 
@@ -22,7 +22,7 @@ public class DocumentAuditController {
     }
 
 
-    @GetMapping("/{documentId}/audit")
+    @GetMapping("/{documentId}")
     public ResponseEntity<ApiResponse<PageResponse<EmployeeDocumentAuditResponse>>> getAuditLogs(
 
             @PathVariable Long documentId,
