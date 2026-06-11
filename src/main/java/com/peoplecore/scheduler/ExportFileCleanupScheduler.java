@@ -18,7 +18,7 @@ public class ExportFileCleanupScheduler {
     private String exportDir;
 
 //    @Scheduled(fixedRate = 60000)
-@Scheduled(cron = "0 */1 * * * *")
+     @Scheduled(cron = "0 */1 * * * *")
     public void cleanupExpiredExports() {
 
         try {

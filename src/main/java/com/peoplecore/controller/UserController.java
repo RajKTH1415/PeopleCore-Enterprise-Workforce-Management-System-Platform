@@ -56,7 +56,7 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @PostMapping
-    public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody UserRequest userRequest, HttpServletRequest httpServletRequest){
+    public ResponseEntity<ApiResponse<UserResponse>> registerUsers(@Valid @RequestBody UserRequest userRequest, HttpServletRequest httpServletRequest){
         UserResponse userResponse =   userService.createUser(userRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(),"User created successful",httpServletRequest.getRequestURI(),userResponse));
     }
