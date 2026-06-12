@@ -14,4 +14,8 @@ public interface DocumentWorkflowService  {
             HttpServletRequest httpServletRequest
     );
 
+    List<DocumentApprovalWorkflow> getWorkflowByDocumentId(
+            String documentId,
+            HttpServletRequest request);
+
 }

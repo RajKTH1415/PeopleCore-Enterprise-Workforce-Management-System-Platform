@@ -23,10 +23,15 @@ public class DocumentWorkflowController {
         this.documentWorkflowService = documentWorkflowService;
     }
 
-
     @PostMapping("/{documentId}/assign-approval-workflow")
     public ResponseEntity<ApiResponse<List<DocumentApprovalWorkflow>>> assignApprovalWorkflow(@PathVariable String documentId, @RequestBody ApprovalWorkflowRequest requestBody, HttpServletRequest httpServletRequest) {
         List<DocumentApprovalWorkflow> response = documentWorkflowService.assignApprovalWorkflow(documentId, requestBody, httpServletRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval workflow assigned successfully", httpServletRequest.getRequestURI(), response));
+    }
+
+    @GetMapping("/{documentId}")
+    public ResponseEntity<ApiResponse<List<DocumentApprovalWorkflow>>> getWorkflowByDocumentId(@PathVariable String documentId, HttpServletRequest httpServletRequest) {
+        List<DocumentApprovalWorkflow> response = documentWorkflowService.getWorkflowByDocumentId(documentId, httpServletRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Workflow fetched successfully", httpServletRequest.getRequestURI(), response));
     }
 }

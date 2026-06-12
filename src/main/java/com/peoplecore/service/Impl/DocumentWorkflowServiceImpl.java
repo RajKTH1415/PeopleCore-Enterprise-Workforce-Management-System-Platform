@@ -1,6 +1,7 @@
 package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.request.ApprovalWorkflowRequest;
+import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.ApprovalAuditLog;
 import com.peoplecore.module.DocumentApprovalWorkflow;
 import com.peoplecore.repository.ApprovalAuditLogRepository;
@@ -83,5 +84,20 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
         approvalAuditLogRepository.save(auditLog);
 
         return savedWorkflows;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DocumentApprovalWorkflow> getWorkflowByDocumentId(
+            String documentId,
+            HttpServletRequest request) {
+
+        employeeDocumentRepository.findByDocumentId(documentId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Document not found with id : " + documentId));
+
+        return documentApprovalWorkflowRepository
+                .findByDocumentIdOrderByApprovalLevelAsc(documentId);
     }
 }
