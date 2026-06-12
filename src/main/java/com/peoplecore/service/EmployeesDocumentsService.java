@@ -98,4 +98,16 @@ public interface EmployeesDocumentsService {
     DownloadDocumentResponse previewDocument(
             String documentId,
             HttpServletRequest request);
+
+    DocumentResponse uploadNewVersion(
+            String documentId,
+            MultipartFile file,
+            HttpServletRequest request);
+
+    List<DocumentVersionResponse> getVersions(
+            String documentId);
+
+    DocumentVersionResponse getVersion(
+            String documentId,
+            Integer version);
 }

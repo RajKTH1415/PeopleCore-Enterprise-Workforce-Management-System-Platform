@@ -1082,6 +1082,180 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
                 .build();
     }
 
+    @Override
+    @Transactional
+    public DocumentResponse uploadNewVersion(
+            String documentId,
+            MultipartFile file,
+            HttpServletRequest request) {
+
+        EmployeeDocument document =
+                employeeDocumentRepository
+                        .findByDocumentId(documentId)
+                        .orElseThrow(() ->
+                                new RuntimeException("Document not found"));
+
+        int nextVersion = document.getVersion() + 1;
+
+        String folder =
+                document.getEmployeeId() +
+                        "/" +
+                        documentId;
+
+        String uploadedPath;
+
+        try {
+            uploadedPath =
+                    fileStorageService.uploadFile(
+                            file,
+                            folder
+                    );
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "File upload failed"
+            );
+        }
+
+        document.setVersion(nextVersion);
+        document.setFileName(
+                file.getOriginalFilename()
+        );
+        document.setFileUrl(uploadedPath);
+        document.setFileSize(file.getSize());
+        document.setUpdatedAt(
+                LocalDateTime.now()
+        );
+
+        employeeDocumentRepository.save(document);
+
+        DocumentVersionHistory history =
+                DocumentVersionHistory.builder()
+                        .documentRefId(document.getId())
+                        .documentId(document.getDocumentId())
+                        .version(nextVersion)
+                        .fileName(file.getOriginalFilename())
+                        .fileSize(file.getSize())
+                        .storageKey(uploadedPath)
+                        .versionComment(
+                                "New version uploaded"
+                        )
+                        .uploadedBy("SYSTEM")
+                        .uploadedAt(
+                                LocalDateTime.now()
+                        )
+                        .build();
+
+        documentVersionRepository.save(history);
+
+        EmployeeDocumentAudit audit =
+                EmployeeDocumentAudit.builder()
+                        .documentId(document.getId())
+                        .employeeId(document.getEmployeeId())
+                        .actionType(
+                                ActionType.REPLACE_FILE
+                        )
+                        .accessType(
+                                AccessType.WRITE
+                        )
+                        .remarks(
+                                "New version uploaded"
+                        )
+                        .performedBy("SYSTEM")
+                        .performedAt(
+                                LocalDateTime.now()
+                        )
+                        .status("SUCCESS")
+                        .ipAddress(
+                                getClientIp(request)
+                        )
+                        .userAgent(
+                                getUserAgent(request)
+                        )
+                        .build();
+
+        documentAuditRepository.save(audit);
+
+        return DocumentResponse.builder()
+                .documentId(
+                        document.getDocumentId()
+                )
+                .employeeId(
+                        document.getEmployeeId()
+                )
+                .fileName(
+                        document.getFileName()
+                )
+                .fileUrl(
+                        document.getFileUrl()
+                )
+                .version(
+                        document.getVersion()
+                )
+                .build();
+    }
+
+    @Override
+    public List<DocumentVersionResponse> getVersions(
+            String documentId) {
+
+        return documentVersionRepository
+                .findByDocumentIdOrderByVersionDesc(
+                        documentId)
+                .stream()
+                .map(v ->
+                        DocumentVersionResponse
+                                .builder()
+                                .id(v.getId())
+                                .documentId(v.getDocumentId())
+                                .version(v.getVersion())
+                                .fileName(v.getFileName())
+                                .fileSize(v.getFileSize())
+                                .storageKey(v.getStorageKey())
+                                .versionComment(
+                                        v.getVersionComment())
+                                .uploadedBy(
+                                        v.getUploadedBy())
+                                .uploadedAt(
+                                        v.getUploadedAt())
+                                .build())
+                .toList();
+    }
+
+    @Override
+    public DocumentVersionResponse getVersion(
+            String documentId,
+            Integer version) {
+
+        DocumentVersionHistory history =
+                documentVersionRepository
+                        .findByDocumentIdAndVersion(
+                                documentId,
+                                version)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Version not found"));
+
+        return DocumentVersionResponse.builder()
+                .id(history.getId())
+                .documentId(
+                        history.getDocumentId())
+                .version(
+                        history.getVersion())
+                .fileName(
+                        history.getFileName())
+                .fileSize(
+                        history.getFileSize())
+                .storageKey(
+                        history.getStorageKey())
+                .versionComment(
+                        history.getVersionComment())
+                .uploadedBy(
+                        history.getUploadedBy())
+                .uploadedAt(
+                        history.getUploadedAt())
+                .build();
+    }
+
     private void validateDocumentAccess(EmployeeDocument doc) {
 
         // Example future RBAC
