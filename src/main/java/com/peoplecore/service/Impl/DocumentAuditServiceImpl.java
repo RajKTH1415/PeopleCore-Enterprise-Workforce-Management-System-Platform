@@ -192,6 +192,34 @@ public class DocumentAuditServiceImpl implements DocumentAuditService {
                 .toList();
     }
 
+    @Override
+    public List<DocumentRestoreHistoryResponse> getRestoreHistory(Long documentId) {
+
+        List<EmployeeDocumentAudit> logs = documentAuditRepository  .findByDocumentIdAndActionTypeOrderByPerformedAtDesc(
+                documentId,
+                ActionType.RESTORE
+        );
+
+        return logs.stream()
+                .map(audit -> DocumentRestoreHistoryResponse.builder()
+                        .id(audit.getId())
+                        .documentId(audit.getDocumentId())
+                        .employeeId(audit.getEmployeeId())
+                        .actionType(audit.getActionType().name())
+                        .fileName(audit.getFileName())
+                        .fileUrl(audit.getFileUrl())
+                        .performedBy(audit.getPerformedBy())
+                        .performedAt(audit.getPerformedAt())
+                        .ipAddress(audit.getIpAddress())
+                        .userAgent(audit.getUserAgent())
+                        .status(audit.getStatus())
+                        .remarks(audit.getRemarks())
+                        .oldValue(audit.getOldValue())
+                        .newValue(audit.getNewValue())
+                        .build())
+                .toList();
+    }
+
 
     private DocumentVerificationHistoryResponse mapToResponse(
             EmployeeDocumentAudit audit) {

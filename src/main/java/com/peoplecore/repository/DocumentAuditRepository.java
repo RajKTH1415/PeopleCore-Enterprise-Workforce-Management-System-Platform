@@ -29,4 +29,6 @@ public interface DocumentAuditRepository extends JpaRepository<EmployeeDocumentA
             Long documentId,
             ActionType actionType
     );
+
+
 }

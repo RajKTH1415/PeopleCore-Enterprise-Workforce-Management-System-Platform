@@ -29,4 +29,6 @@ public interface DocumentAuditService {
     List<DocumentVerificationHistoryResponse> getVerificationHistory(Long documentId);
 
     List<DocumentDownloadHistoryResponse> getDownloadHistory(Long documentId);
+
+    List<DocumentRestoreHistoryResponse> getRestoreHistory(Long documentId);
 }

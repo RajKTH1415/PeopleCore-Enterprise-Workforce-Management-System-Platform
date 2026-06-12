@@ -111,4 +111,10 @@ public class DocumentAuditController {
         List<DocumentDownloadHistoryResponse>  documentDownloadHistoryResponse = documentAuditService.getDownloadHistory(documentId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Document download history fetched successfully",httpServletRequest.getRequestURI(),documentDownloadHistoryResponse));
     }
+
+    @GetMapping("/{documentId}/restore-history")
+    public ResponseEntity<ApiResponse<List<DocumentRestoreHistoryResponse>>> getRestoreHistory(@PathVariable Long documentId, HttpServletRequest request) {
+        List<DocumentRestoreHistoryResponse> response = documentAuditService.getRestoreHistory(documentId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Document restore history fetched successfully", request.getRequestURI(), response));
+    }
 }
