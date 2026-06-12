@@ -21,7 +21,6 @@ public class DocumentAuditController {
         this.documentAuditService = documentAuditService;
     }
 
-
     @GetMapping("/{documentId}")
     public ResponseEntity<ApiResponse<PageResponse<EmployeeDocumentAuditResponse>>> getAuditLogs(
 
@@ -56,8 +55,7 @@ public class DocumentAuditController {
                         HttpStatus.OK.value(),
                         "Document audit logs fetched successfully",
                         httpServletRequest.getRequestURI(),
-                        response
-                ));
+                        response));
     }
 
     @GetMapping("/{documentId}/access-log")

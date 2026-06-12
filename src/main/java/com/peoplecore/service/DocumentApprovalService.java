@@ -110,9 +110,4 @@ public interface DocumentApprovalService {
             HttpServletRequest httpServletRequest
     );
 
-    List<DocumentApprovalWorkflow> assignApprovalWorkflow(
-            String documentId,
-            ApprovalWorkflowRequest request,
-            HttpServletRequest httpServletRequest
-    );
 }

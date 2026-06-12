@@ -736,59 +736,6 @@ public class DocumentApprovalServiceImpl implements DocumentApprovalService {
                 .build();
     }
 
-    @Override
-    @Transactional
-    public List<DocumentApprovalWorkflow> assignApprovalWorkflow(
-            String documentId,
-            ApprovalWorkflowRequest request,
-            HttpServletRequest httpServletRequest
-    ) {
-
-        List<DocumentApprovalWorkflow> workflows =
-                request.getWorkflowLevels()
-                        .stream()
-                        .map(level ->
-                                DocumentApprovalWorkflow.builder()
-                                        .documentId(documentId)
-                                        .approvalLevel(
-                                                level.getApprovalLevel()
-                                        )
-                                        .approverId(
-                                                level.getApproverId()
-                                        )
-                                        .roleName(
-                                                level.getRoleName()
-                                        )
-                                        .workflowStatus(
-                                                level.getApprovalLevel() == 1
-                                                        ? "PENDING"
-                                                        : "WAITING"
-                                        )
-                                        .assignedAt(LocalDateTime.now())
-                                        .build()
-                        )
-                        .toList();
-
-        List<DocumentApprovalWorkflow> savedWorkflows =
-                documentApprovalWorkflowRepository.saveAll(workflows);
-
-        ApprovalAuditLog auditLog =
-                ApprovalAuditLog.builder()
-                        .documentId(documentId)
-                        .action("WORKFLOW_ASSIGNED")
-                        .newStatus("WORKFLOW_CREATED")
-                        .actionBy(1L)
-                        .actionAt(LocalDateTime.now())
-                        .remarks(
-                                "Multi-level approval workflow assigned"
-                        )
-                        .build();
-
-        approvalAuditLogRepository.save(auditLog);
-
-        return savedWorkflows;
-    }
-
     private DocumentApprovalResponse mapToResponse(
             DocumentApproval approval) {
 
