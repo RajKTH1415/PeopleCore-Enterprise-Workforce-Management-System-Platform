@@ -1,6 +1,7 @@
 package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.request.ApprovalWorkflowRequest;
+import com.peoplecore.dto.request.UpdateWorkflowRequest;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.ApprovalAuditLog;
 import com.peoplecore.module.DocumentApprovalWorkflow;
@@ -99,5 +100,56 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
 
         return documentApprovalWorkflowRepository
                 .findByDocumentIdOrderByApprovalLevelAsc(documentId);
+    }
+
+    @Override
+    @Transactional
+    public DocumentApprovalWorkflow updateWorkflow(
+            Long workflowId,
+            UpdateWorkflowRequest request,
+            HttpServletRequest httpServletRequest
+    ) {
+
+        DocumentApprovalWorkflow workflow =
+                documentApprovalWorkflowRepository.findById(workflowId)
+                        .orElseThrow(() ->
+                                new RuntimeException("Workflow not found"));
+
+        workflow.setApprovalLevel(
+                request.getApprovalLevel()
+        );
+
+        workflow.setApproverId(
+                request.getApproverId()
+        );
+
+        workflow.setRoleName(
+                request.getRoleName()
+        );
+
+        workflow.setWorkflowStatus(
+                request.getWorkflowStatus()
+        );
+
+        DocumentApprovalWorkflow updatedWorkflow =
+                documentApprovalWorkflowRepository.save(workflow);
+
+        ApprovalAuditLog auditLog =
+                ApprovalAuditLog.builder()
+                        .documentId(workflow.getDocumentId())
+                        .action("WORKFLOW_UPDATED")
+                        .oldStatus("UPDATED")
+                        .newStatus(request.getWorkflowStatus())
+                        .actionBy(1L)
+                        .actionAt(LocalDateTime.now())
+                        .remarks(
+                                "Workflow updated. Workflow Id : "
+                                        + workflowId
+                        )
+                        .build();
+
+        approvalAuditLogRepository.save(auditLog);
+
+        return updatedWorkflow;
     }
 }

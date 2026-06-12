@@ -1,6 +1,7 @@
 package com.peoplecore.controller;
 
 import com.peoplecore.dto.request.ApprovalWorkflowRequest;
+import com.peoplecore.dto.request.UpdateWorkflowRequest;
 import com.peoplecore.module.DocumentApprovalWorkflow;
 import com.peoplecore.service.DocumentApprovalService;
 import com.peoplecore.service.DocumentWorkflowService;
@@ -33,5 +34,11 @@ public class DocumentWorkflowController {
     public ResponseEntity<ApiResponse<List<DocumentApprovalWorkflow>>> getWorkflowByDocumentId(@PathVariable String documentId, HttpServletRequest httpServletRequest) {
         List<DocumentApprovalWorkflow> response = documentWorkflowService.getWorkflowByDocumentId(documentId, httpServletRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Workflow fetched successfully", httpServletRequest.getRequestURI(), response));
+    }
+
+    @PutMapping("/{workflowId}")
+    public ResponseEntity<ApiResponse<DocumentApprovalWorkflow>> updateWorkflow(@PathVariable Long workflowId, @RequestBody UpdateWorkflowRequest request, HttpServletRequest httpServletRequest) {
+        DocumentApprovalWorkflow response = documentWorkflowService.updateWorkflow(workflowId, request, httpServletRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Workflow updated successfully", httpServletRequest.getRequestURI(), response));
     }
 }
