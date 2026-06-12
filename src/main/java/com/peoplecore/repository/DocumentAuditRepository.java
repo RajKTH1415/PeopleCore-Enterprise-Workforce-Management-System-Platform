@@ -1,5 +1,6 @@
 package com.peoplecore.repository;
 
+import com.peoplecore.enums.ActionType;
 import com.peoplecore.module.EmployeeDocumentAudit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,5 +22,11 @@ public interface DocumentAuditRepository extends JpaRepository<EmployeeDocumentA
     findByDocumentIdAndActionTypeInOrderByPerformedAtDesc(
             Long documentId,
             List<String> actionTypes
+    );
+
+    List<EmployeeDocumentAudit>
+    findByDocumentIdAndActionTypeOrderByPerformedAtDesc(
+            Long documentId,
+            ActionType actionType
     );
 }

@@ -1,6 +1,7 @@
 package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.response.*;
+import com.peoplecore.enums.ActionType;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.DocumentAccessLog;
 import com.peoplecore.module.DocumentVersionHistory;
@@ -60,7 +61,7 @@ public class DocumentAuditServiceImpl implements DocumentAuditService {
                                 .id(log.getId())
                                 .documentId(log.getDocumentId())
                                 .employeeId(log.getEmployeeId())
-                                .action(log.getAction())
+                                .actionType(log.getActionType())
                                 .fileName(log.getFileName())
                                 .fileUrl(log.getFileUrl())
                                 .remarks(log.getRemarks())
@@ -162,6 +163,35 @@ public class DocumentAuditServiceImpl implements DocumentAuditService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
+    @Override
+    public List<DocumentDownloadHistoryResponse> getDownloadHistory(Long documentId) {
+
+        List<EmployeeDocumentAudit> logs =
+                documentAuditRepository.findByDocumentIdAndActionTypeOrderByPerformedAtDesc(
+                        documentId,
+                        ActionType.DOWNLOAD
+                );
+
+        return logs.stream()
+                .map(audit -> DocumentDownloadHistoryResponse.builder()
+                        .id(audit.getId())
+                        .documentId(audit.getDocumentId())
+                        .employeeId(audit.getEmployeeId())
+                        .actionType(audit.getActionType().name())
+                        .fileName(audit.getFileName())
+                        .fileUrl(audit.getFileUrl())
+                        .performedBy(audit.getPerformedBy())
+                        .performedAt(audit.getPerformedAt())
+                        .ipAddress(audit.getIpAddress())
+                        .userAgent(audit.getUserAgent())
+                        .status(audit.getStatus())
+                        .remarks(audit.getRemarks())
+                        .build()
+                )
+                .toList();
+    }
+
 
     private DocumentVerificationHistoryResponse mapToResponse(
             EmployeeDocumentAudit audit) {

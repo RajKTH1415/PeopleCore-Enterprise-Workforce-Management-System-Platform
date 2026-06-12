@@ -105,4 +105,10 @@ public class DocumentAuditController {
         List<DocumentVerificationHistoryResponse> documentVerificationHistoryResponse = documentAuditService.getVerificationHistory(documentId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Document verification history fetched successfully",httpServletRequest.getRequestURI(),documentVerificationHistoryResponse));
     }
+
+    @GetMapping("/{documentId}/download-history")
+    public ResponseEntity<ApiResponse<List<DocumentDownloadHistoryResponse>>> getDownloadHistory(@PathVariable Long documentId, HttpServletRequest httpServletRequest) {
+        List<DocumentDownloadHistoryResponse>  documentDownloadHistoryResponse = documentAuditService.getDownloadHistory(documentId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Document download history fetched successfully",httpServletRequest.getRequestURI(),documentDownloadHistoryResponse));
+    }
 }

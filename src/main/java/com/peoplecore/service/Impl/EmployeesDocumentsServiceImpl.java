@@ -133,7 +133,7 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
 
         List<DocumentAuditDto> auditDtos = audits.stream()
                 .map(a -> DocumentAuditDto.builder()
-                        .action(a.getAction())
+                        .actionType(a.getActionType().name())
                         .actionType(a.getActionType().name())
                         .accessType(a.getAccessType().name())
                         .remarks(a.getRemarks())
@@ -396,13 +396,14 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
                 employeeDocumentSkillMappingRepository.saveAll(mappings);
             }
 
-            String actionValue = existingDocOpt.isPresent()
-                    ? "Document updated"
-                    : "Document uploaded";
+//            String actionValue = existingDocOpt.isPresent()
+//                    ? "Document updated"
+//                    : "Document uploaded";
 
-            String actionTypeValue = existingDocOpt.isPresent()
-                    ? "REPLACE_FILE"
-                    : "UPLOAD";
+            ActionType actionType = existingDocOpt.isPresent()
+                    ? ActionType.REPLACE_FILE
+                    : ActionType.UPLOAD;
+
 
             Map<String, String> diffMap = generateOldNewDiff(oldValueJson, newValueJson);
 
@@ -412,7 +413,7 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
             EmployeeDocumentAudit audit = EmployeeDocumentAudit.builder()
                     .documentId(doc.getId())
                     .employeeId(employeeId)
-                    .action(actionValue) //
+                    .actionType(actionType) //
                     .fileName(doc.getFileName())
                     .fileUrl(doc.getFileUrl())
                     .remarks(existingDocOpt.isPresent() ? "Version updated" : "Initial upload")
@@ -695,7 +696,7 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
         EmployeeDocumentAudit audit = EmployeeDocumentAudit.builder()
                 .documentId(doc.getId())
                 .employeeId(doc.getEmployeeId())
-                .action(ActionType.DELETE.name()) // business action
+                .actionType(ActionType.DELETE) // business action
                 .actionType(ActionType.UPDATE_METADATA) //  DB allowed
                 .accessType(AccessType.WRITE) //  DB allowed
                 .fileName(doc.getFileName())
@@ -773,7 +774,7 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
         EmployeeDocumentAudit audit = EmployeeDocumentAudit.builder()
                 .documentId(doc.getId())
                 .employeeId(doc.getEmployeeId())
-                .action(ActionType.RESTORE.name())
+                .actionType(ActionType.RESTORE)
                 .actionType(ActionType.UPDATE_METADATA)
                 .accessType(AccessType.WRITE)
                 .fileName(doc.getFileName())
@@ -851,7 +852,7 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
         EmployeeDocumentAudit audit = EmployeeDocumentAudit.builder()
                 .documentId(document.getId())
                 .employeeId(employeeId)
-                .action(ActionType.RESTORE.name())
+                .actionType(ActionType.RESTORE)
                 .actionType(ActionType.REPLACE_FILE)
                 .accessType(AccessType.WRITE)
                 .fileName(document.getFileName())
@@ -936,7 +937,7 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
         EmployeeDocumentAudit audit = EmployeeDocumentAudit.builder()
                 .documentId(document.getId())
                 .employeeId(employeeId)
-                .action(ActionType.REPLACE_FILE.name())
+                .actionType(ActionType.REPLACE_FILE)
                 .actionType(ActionType.REPLACE_FILE) //  matches constraint
                 .accessType(AccessType.WRITE) //  matches constraint
                 .fileName(document.getFileName())
@@ -1026,7 +1027,7 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
         EmployeeDocumentAudit audit = EmployeeDocumentAudit.builder()
                 .documentId(doc.getId())
                 .employeeId(doc.getEmployeeId())
-                .action(ActionType.DOWNLOAD.name())
+                .actionType(ActionType.DOWNLOAD)
                 .actionType(ActionType.DOWNLOAD)
                 .accessType(AccessType.READ)
                 .fileName(doc.getFileName())

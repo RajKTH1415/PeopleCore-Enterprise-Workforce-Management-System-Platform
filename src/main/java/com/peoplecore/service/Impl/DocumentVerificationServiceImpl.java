@@ -1,6 +1,7 @@
 package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.response.DocumentResponse;
+import com.peoplecore.enums.ActionType;
 import com.peoplecore.module.EmployeeDocument;
 import com.peoplecore.module.EmployeeDocumentAudit;
 import com.peoplecore.repository.DocumentAuditRepository;
@@ -41,7 +42,13 @@ public class DocumentVerificationServiceImpl implements DocumentVerificationServ
 
         EmployeeDocument savedDocument = employeeDocumentRepository.save(document);
 
-        saveAudit(savedDocument, "VERIFY_DOCUMENT", oldStatus, "VERIFIED", request);
+        saveAudit(
+                savedDocument,
+                ActionType.VERIFY,
+                oldStatus,
+                "VERIFIED",
+                request
+        );
 
         return mapToResponse(savedDocument);
     }
@@ -69,7 +76,7 @@ public class DocumentVerificationServiceImpl implements DocumentVerificationServ
 
         saveAudit(
                 savedDocument,
-                "REJECT_DOCUMENT",
+                ActionType.REJECT,
                 oldStatus,
                 "REJECTED : " + reason,
                 request
@@ -80,7 +87,7 @@ public class DocumentVerificationServiceImpl implements DocumentVerificationServ
 
     private void saveAudit(
             EmployeeDocument document,
-            String action,
+            ActionType action,
             String oldValue,
             String newValue,
             HttpServletRequest request
@@ -90,10 +97,10 @@ public class DocumentVerificationServiceImpl implements DocumentVerificationServ
                 EmployeeDocumentAudit.builder()
                         .documentId(document.getId())
                         .employeeId(document.getEmployeeId())
-                        .action(action)
+                        .actionType(action)
                         .fileName(document.getFileName())
                         .fileUrl(document.getFileUrl())
-                        .remarks(action)
+                        .remarks(action.name())
                         .performedBy("SYSTEM")
                         .performedAt(LocalDateTime.now())
                         .status(document.getStatus())

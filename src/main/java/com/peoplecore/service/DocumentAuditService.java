@@ -27,4 +27,6 @@ public interface DocumentAuditService {
     List<DocumentVersionResponse> getDocumentVersions(String documentId);
 
     List<DocumentVerificationHistoryResponse> getVerificationHistory(Long documentId);
+
+    List<DocumentDownloadHistoryResponse> getDownloadHistory(Long documentId);
 }

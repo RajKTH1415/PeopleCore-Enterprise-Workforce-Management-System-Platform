@@ -26,8 +26,8 @@ public class EmployeeDocumentAudit {
     @Column(name = "employee_id", nullable = false)
     private Long employeeId;
 
-    @Column(nullable = false)
-    private String action;
+//    @Column(nullable = false)
+//    private String action;
 
     @Column(name = "file_name")
     private String fileName;
