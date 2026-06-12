@@ -2,13 +2,12 @@ package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.request.ApprovalWorkflowRequest;
 import com.peoplecore.dto.request.UpdateWorkflowRequest;
+import com.peoplecore.dto.request.WorkflowTemplateRequest;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.ApprovalAuditLog;
 import com.peoplecore.module.DocumentApprovalWorkflow;
-import com.peoplecore.repository.ApprovalAuditLogRepository;
-import com.peoplecore.repository.DocumentApprovalRepository;
-import com.peoplecore.repository.DocumentApprovalWorkflowRepository;
-import com.peoplecore.repository.EmployeeDocumentRepository;
+import com.peoplecore.module.WorkflowTemplate;
+import com.peoplecore.repository.*;
 import com.peoplecore.service.DocumentWorkflowService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
@@ -21,12 +20,14 @@ import java.util.List;
 public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
 
 
+    private final WorkflowTemplateRepository workflowTemplateRepository;
     private final DocumentApprovalRepository documentApprovalRepository;
     private final ApprovalAuditLogRepository approvalAuditLogRepository;
     private final DocumentApprovalWorkflowRepository documentApprovalWorkflowRepository;
     private final EmployeeDocumentRepository employeeDocumentRepository;
 
-    public DocumentWorkflowServiceImpl(DocumentApprovalRepository documentApprovalRepository, ApprovalAuditLogRepository approvalAuditLogRepository, DocumentApprovalWorkflowRepository documentApprovalWorkflowRepository, EmployeeDocumentRepository employeeDocumentRepository) {
+    public DocumentWorkflowServiceImpl(WorkflowTemplateRepository workflowTemplateRepository, DocumentApprovalRepository documentApprovalRepository, ApprovalAuditLogRepository approvalAuditLogRepository, DocumentApprovalWorkflowRepository documentApprovalWorkflowRepository, EmployeeDocumentRepository employeeDocumentRepository) {
+        this.workflowTemplateRepository = workflowTemplateRepository;
         this.documentApprovalRepository = documentApprovalRepository;
         this.approvalAuditLogRepository = approvalAuditLogRepository;
         this.documentApprovalWorkflowRepository = documentApprovalWorkflowRepository;
@@ -151,5 +152,60 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
         approvalAuditLogRepository.save(auditLog);
 
         return updatedWorkflow;
+    }
+
+    @Override
+    public List<WorkflowTemplate> getWorkflowTemplates() {
+
+        return workflowTemplateRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void deleteWorkflow(
+            Long workflowId,
+            HttpServletRequest request
+    ) {
+
+        DocumentApprovalWorkflow workflow =
+                documentApprovalWorkflowRepository.findById(workflowId)
+                        .orElseThrow(() ->
+                                new RuntimeException("Workflow not found"));
+
+        documentApprovalWorkflowRepository.delete(workflow);
+
+        ApprovalAuditLog auditLog =
+                ApprovalAuditLog.builder()
+                        .documentId(workflow.getDocumentId())
+                        .action("WORKFLOW_DELETED")
+                        .oldStatus(workflow.getWorkflowStatus())
+                        .newStatus("DELETED")
+                        .actionBy(1L)
+                        .actionAt(LocalDateTime.now())
+                        .remarks("Workflow deleted")
+                        .build();
+
+        approvalAuditLogRepository.save(auditLog);
+    }
+
+    @Override
+    @Transactional
+    public WorkflowTemplate createWorkflowTemplate(
+            WorkflowTemplateRequest request,
+            HttpServletRequest httpServletRequest
+    ) {
+
+        WorkflowTemplate template =
+                WorkflowTemplate.builder()
+                        .templateName(
+                                request.getTemplateName()
+                        )
+                        .description(
+                                request.getDescription()
+                        )
+                        .active(true)
+                        .build();
+
+        return workflowTemplateRepository.save(template);
     }
 }

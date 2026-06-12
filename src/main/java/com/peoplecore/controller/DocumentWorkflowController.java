@@ -2,7 +2,9 @@ package com.peoplecore.controller;
 
 import com.peoplecore.dto.request.ApprovalWorkflowRequest;
 import com.peoplecore.dto.request.UpdateWorkflowRequest;
+import com.peoplecore.dto.request.WorkflowTemplateRequest;
 import com.peoplecore.module.DocumentApprovalWorkflow;
+import com.peoplecore.module.WorkflowTemplate;
 import com.peoplecore.service.DocumentApprovalService;
 import com.peoplecore.service.DocumentWorkflowService;
 import com.peoplecore.util.ApiResponse;
@@ -40,5 +42,21 @@ public class DocumentWorkflowController {
     public ResponseEntity<ApiResponse<DocumentApprovalWorkflow>> updateWorkflow(@PathVariable Long workflowId, @RequestBody UpdateWorkflowRequest request, HttpServletRequest httpServletRequest) {
         DocumentApprovalWorkflow response = documentWorkflowService.updateWorkflow(workflowId, request, httpServletRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Workflow updated successfully", httpServletRequest.getRequestURI(), response));
+    }
+
+    @GetMapping("/templates")
+    public ResponseEntity<ApiResponse<List<WorkflowTemplate>>> getTemplates(HttpServletRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Workflow templates fetched successfully", request.getRequestURI(), documentWorkflowService.getWorkflowTemplates()));
+    }
+
+    @DeleteMapping("/{workflowId}")
+    public ResponseEntity<ApiResponse<Void>> deleteWorkflow(@PathVariable Long workflowId, HttpServletRequest request) {
+        documentWorkflowService.deleteWorkflow(workflowId, request);
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Workflow deleted successfully", request.getRequestURI(), null));
+    }
+    @PostMapping("/templates")
+    public ResponseEntity<ApiResponse<WorkflowTemplate>> createTemplate(@RequestBody WorkflowTemplateRequest request, HttpServletRequest httpServletRequest) {
+        WorkflowTemplate response = documentWorkflowService.createWorkflowTemplate(request, httpServletRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(), "Workflow template created successfully", httpServletRequest.getRequestURI(), response));
     }
 }
