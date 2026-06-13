@@ -39,4 +39,13 @@ public class EmployeeAddressController {
         AddressResponse response = addressManagementService.getPrimaryAddress(employeeId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Primary address fetched successfully", httpServletRequest.getRequestURI(), response));
     }
+    @GetMapping("/type/{addressType}")
+    public ResponseEntity<ApiResponse<AddressResponse>> getAddressByType(
+            @PathVariable Long employeeId,
+            @PathVariable String addressType,
+            HttpServletRequest httpServletRequest) {
+
+        AddressResponse response = addressManagementService.getAddressByType(employeeId, addressType);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Address fetched by type successfully", httpServletRequest.getRequestURI(), response));
+    }
 }
