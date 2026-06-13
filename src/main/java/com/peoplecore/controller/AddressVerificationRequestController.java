@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/address-verification-requests")
 public class AddressVerificationRequestController {
@@ -43,5 +45,20 @@ public class AddressVerificationRequestController {
     public ResponseEntity<ApiResponse<AddressVerificationRequestResponse>> getVerificationRequestById(@PathVariable Long requestId, HttpServletRequest httpServletRequest) {
         AddressVerificationRequestResponse response = addressManagementService.getVerificationRequestById(requestId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification request fetched successfully", httpServletRequest.getRequestURI(), response));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<AddressVerificationRequestResponse>>> getAllVerificationRequests(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long assignedTo,
+            @RequestParam(required = false) String employeeId,
+            HttpServletRequest httpServletRequest) {
+
+        List<AddressVerificationRequestResponse> response = addressManagementService.getAllVerificationRequests(
+                status,
+                assignedTo,
+                employeeId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification requests fetched successfully", httpServletRequest.getRequestURI(), response));
     }
 }
