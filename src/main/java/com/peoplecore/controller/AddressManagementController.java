@@ -46,11 +46,6 @@ public class AddressManagementController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Address deleted successfully", request.getRequestURI(), null));
     }
 
-    @PatchMapping("/{addressId}/verify")
-    public ResponseEntity<ApiResponse<AddressResponse>> verifyAddress(@PathVariable Long addressId, @RequestBody VerifyAddressRequest request, HttpServletRequest httpServletRequest) {
-        AddressResponse response = addressManagementService.verifyAddress(addressId, request);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Address verified successfully", httpServletRequest.getRequestURI(), response));
-    }
     @GetMapping("/{addressId}/history")
     public ResponseEntity<ApiResponse<List<AddressHistoryResponse>>> getAddressHistory(@PathVariable Long addressId, HttpServletRequest request) {
         List<AddressHistoryResponse> response = addressManagementService.getAddressHistory(addressId);
