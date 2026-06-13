@@ -23,7 +23,7 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> registerUsers(@Valid @RequestBody UserRequest userRequest, HttpServletRequest httpServletRequest){
         UserResponse userResponse =   userService.createUser(userRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(),"User created successful",httpServletRequest.getRequestURI(),userResponse));
