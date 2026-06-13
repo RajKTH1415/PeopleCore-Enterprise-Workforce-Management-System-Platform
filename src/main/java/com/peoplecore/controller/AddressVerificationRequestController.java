@@ -38,4 +38,10 @@ public class AddressVerificationRequestController {
         AddressVerificationRequestResponse response = addressManagementService.completeVerificationRequest(requestId, request);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification request completed successfully", httpServletRequest.getRequestURI(), response));
     }
+
+    @GetMapping("/{requestId}")
+    public ResponseEntity<ApiResponse<AddressVerificationRequestResponse>> getVerificationRequestById(@PathVariable Long requestId, HttpServletRequest httpServletRequest) {
+        AddressVerificationRequestResponse response = addressManagementService.getVerificationRequestById(requestId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification request fetched successfully", httpServletRequest.getRequestURI(), response));
+    }
 }

@@ -63,11 +63,6 @@ public class AddressManagementController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Address restored successfully", request.getRequestURI(), response));
     }
 
-    @GetMapping("/verification-request/{requestId}")
-    public ResponseEntity<ApiResponse<AddressVerificationRequestResponse>> getVerificationRequestById(@PathVariable Long requestId, HttpServletRequest httpServletRequest) {
-        AddressVerificationRequestResponse response = addressManagementService.getVerificationRequestById(requestId);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification request fetched successfully", httpServletRequest.getRequestURI(), response));
-    }
     @GetMapping("/verification-request")
     public ResponseEntity<ApiResponse<List<AddressVerificationRequestResponse>>> getAllVerificationRequests(
             @RequestParam(required = false) String status,
