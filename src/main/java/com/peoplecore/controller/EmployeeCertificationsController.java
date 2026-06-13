@@ -107,8 +107,7 @@ public class EmployeeCertificationsController {
                 employeeCertificationsService.renewCertification(
                         employeeId,
                         certificationId,
-                        request
-                );
+                        request);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Certification renewed successfully", httpServletRequest.getRequestURI(), response));
     }
 

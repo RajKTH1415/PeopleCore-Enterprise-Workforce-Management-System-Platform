@@ -23,11 +23,7 @@ public class AddressManagementController {
         this.addressManagementService = addressManagementService;
     }
 
-    @PostMapping("/employee/{employeeId}")
-    public ResponseEntity<ApiResponse<AddressResponse>> addAddress(@PathVariable Long employeeId, @RequestBody AddressRequest request, HttpServletRequest httpServletRequest) {
-        AddressResponse response = addressManagementService.addAddress(employeeId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(), "Address added successfully",httpServletRequest.getRequestURI(), response));
-    }
+
     @GetMapping("/employee/{employeeId}")
     public ResponseEntity<ApiResponse<List<AddressResponse>>> getEmployeeAddresses(@PathVariable Long employeeId, HttpServletRequest httpServletRequest) {
         List<AddressResponse> response = addressManagementService.getAddressesByEmployeeId(employeeId);

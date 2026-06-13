@@ -1,5 +1,4 @@
 package com.peoplecore.service.Impl;
-
 import com.peoplecore.dto.request.ApprovalWorkflowRequest;
 import com.peoplecore.dto.request.UpdateWorkflowRequest;
 import com.peoplecore.dto.request.WorkflowTemplateRequest;
@@ -12,7 +11,6 @@ import com.peoplecore.service.DocumentWorkflowService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,14 +19,12 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
 
 
     private final WorkflowTemplateRepository workflowTemplateRepository;
-    private final DocumentApprovalRepository documentApprovalRepository;
     private final ApprovalAuditLogRepository approvalAuditLogRepository;
     private final DocumentApprovalWorkflowRepository documentApprovalWorkflowRepository;
     private final EmployeeDocumentRepository employeeDocumentRepository;
 
-    public DocumentWorkflowServiceImpl(WorkflowTemplateRepository workflowTemplateRepository, DocumentApprovalRepository documentApprovalRepository, ApprovalAuditLogRepository approvalAuditLogRepository, DocumentApprovalWorkflowRepository documentApprovalWorkflowRepository, EmployeeDocumentRepository employeeDocumentRepository) {
+    public DocumentWorkflowServiceImpl(WorkflowTemplateRepository workflowTemplateRepository, ApprovalAuditLogRepository approvalAuditLogRepository, DocumentApprovalWorkflowRepository documentApprovalWorkflowRepository, EmployeeDocumentRepository employeeDocumentRepository) {
         this.workflowTemplateRepository = workflowTemplateRepository;
-        this.documentApprovalRepository = documentApprovalRepository;
         this.approvalAuditLogRepository = approvalAuditLogRepository;
         this.documentApprovalWorkflowRepository = documentApprovalWorkflowRepository;
         this.employeeDocumentRepository = employeeDocumentRepository;
