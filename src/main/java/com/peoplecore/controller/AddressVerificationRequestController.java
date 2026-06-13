@@ -1,5 +1,6 @@
 package com.peoplecore.controller;
 
+import com.peoplecore.dto.request.AssignVerificationRequest;
 import com.peoplecore.dto.request.CreateVerificationRequest;
 import com.peoplecore.dto.response.AddressVerificationRequestResponse;
 import com.peoplecore.service.AddressManagementService;
@@ -23,5 +24,11 @@ public class AddressVerificationRequestController {
     public ResponseEntity<ApiResponse<AddressVerificationRequestResponse>> createVerificationRequest(@PathVariable Long addressId, @RequestBody CreateVerificationRequest request, HttpServletRequest httpServletRequest) {
         AddressVerificationRequestResponse response = addressManagementService.createRequest(addressId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(), "Verification request created successfully", httpServletRequest.getRequestURI(), response));
+    }
+
+    @PatchMapping("/{requestId}/assign")
+    public ResponseEntity<ApiResponse<AddressVerificationRequestResponse>> assignVerificationRequest(@PathVariable Long requestId, @RequestBody AssignVerificationRequest request, HttpServletRequest httpServletRequest) {
+        AddressVerificationRequestResponse response = addressManagementService.assignVerificationRequest(requestId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Verification request assigned successfully", httpServletRequest.getRequestURI(), response));
     }
 }
