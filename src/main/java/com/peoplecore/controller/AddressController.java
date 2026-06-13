@@ -14,12 +14,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/address")
-public class AddressManagementController {
+public class AddressController {
 
 
     private final AddressManagementService addressManagementService;
 
-    public AddressManagementController(AddressManagementService addressManagementService) {
+    public AddressController(AddressManagementService addressManagementService) {
         this.addressManagementService = addressManagementService;
     }
 
