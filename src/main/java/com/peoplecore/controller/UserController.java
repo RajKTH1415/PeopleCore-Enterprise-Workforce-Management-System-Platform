@@ -48,20 +48,6 @@ public class UserController {
     }
 
 
-    @Operation(summary = "Create a new user",
-            description = "Creates a new user in the system")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "User created successfully"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid request data"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @PostMapping
-    public ResponseEntity<ApiResponse<UserResponse>> registerUsers(@Valid @RequestBody UserRequest userRequest, HttpServletRequest httpServletRequest){
-        UserResponse userResponse =   userService.createUser(userRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(),"User created successful",httpServletRequest.getRequestURI(),userResponse));
-    }
-
-
     @Operation(
             summary = "Retrieve all users",
             description = "Fetches a paginated list of users with optional filtering by status, role, and name. Supports sorting and pagination."
