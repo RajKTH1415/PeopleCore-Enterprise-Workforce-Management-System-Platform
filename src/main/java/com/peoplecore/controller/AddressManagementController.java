@@ -46,12 +46,6 @@ public class AddressManagementController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Address deleted successfully", request.getRequestURI(), null));
     }
 
-    @GetMapping("/{addressId}/history")
-    public ResponseEntity<ApiResponse<List<AddressHistoryResponse>>> getAddressHistory(@PathVariable Long addressId, HttpServletRequest request) {
-        List<AddressHistoryResponse> response = addressManagementService.getAddressHistory(addressId);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Address history fetched successfully", request.getRequestURI(), response));
-    }
-
     @DeleteMapping("/{addressId}/permanent")
     public ResponseEntity<ApiResponse<String>> permanentDeleteAddress(@PathVariable Long addressId, HttpServletRequest request) {
         addressManagementService.permanentDeleteAddress(addressId);
