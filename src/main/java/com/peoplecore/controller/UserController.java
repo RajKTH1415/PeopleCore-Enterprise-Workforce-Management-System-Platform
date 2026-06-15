@@ -1,6 +1,5 @@
 package com.peoplecore.controller;
 import com.peoplecore.dto.request.UpdateUserRequest;
-import com.peoplecore.dto.request.UserRequest;
 import com.peoplecore.dto.response.PageResponse;
 import com.peoplecore.dto.response.UserResponse;
 import com.peoplecore.enums.RoleName;

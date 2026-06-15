@@ -1,5 +1,4 @@
 package com.peoplecore.controller;
-
 import com.peoplecore.dto.request.AssignVerificationRequest;
 import com.peoplecore.dto.request.CompleteVerificationRequest;
 import com.peoplecore.dto.request.CreateVerificationRequest;

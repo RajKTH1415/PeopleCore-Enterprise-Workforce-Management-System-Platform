@@ -1,5 +1,4 @@
 package com.peoplecore.controller;
-
 import com.peoplecore.dto.response.DocumentResponse;
 import com.peoplecore.service.DocumentVerificationService;
 import com.peoplecore.util.ApiResponse;

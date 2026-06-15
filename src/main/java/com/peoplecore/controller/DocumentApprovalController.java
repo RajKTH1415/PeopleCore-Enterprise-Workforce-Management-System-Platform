@@ -1,7 +1,6 @@
 package com.peoplecore.controller;
 import com.peoplecore.dto.request.*;
 import com.peoplecore.dto.response.*;
-import com.peoplecore.module.DocumentApprovalWorkflow;
 import com.peoplecore.service.DocumentApprovalService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;

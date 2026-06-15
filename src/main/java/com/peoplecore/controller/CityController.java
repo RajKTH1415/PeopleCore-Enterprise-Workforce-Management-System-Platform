@@ -54,6 +54,7 @@ public class CityController {
         cityService.deleteCity(id);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "City deleted successfully", httpServletRequest.getRequestURI(), null));
     }
+
     @DeleteMapping
     public ResponseEntity<ApiResponse<String>> deleteAllCities(HttpServletRequest httpServletRequest) {
         cityService.deleteAllCities();
