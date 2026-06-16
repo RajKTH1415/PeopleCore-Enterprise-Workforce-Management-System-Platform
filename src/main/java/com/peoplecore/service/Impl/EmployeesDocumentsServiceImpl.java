@@ -4,10 +4,7 @@ import com.peoplecore.dto.request.UpdateDocumentRequest;
 import com.peoplecore.dto.response.*;
 import com.peoplecore.enums.AccessType;
 import com.peoplecore.enums.ActionType;
-import com.peoplecore.exception.DocumentBulkDeletionException;
-import com.peoplecore.exception.DocumentUploadException;
-import com.peoplecore.exception.NoDataFoundException;
-import com.peoplecore.exception.ResourceNotFoundException;
+import com.peoplecore.exception.*;
 import com.peoplecore.module.*;
 import com.peoplecore.repository.*;
 import com.peoplecore.service.EmployeesDocumentsService;
@@ -529,36 +526,116 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
             int page,
             int size,
             String sortBy,
-            String sortDir
-    ) {
+            String sortDir) {
+
+        // ================= EMPLOYEE VALIDATION =================
+
+        employeeRepository.findById(employeeId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Employee not found with id: " + employeeId));
+
+        // ================= PAGINATION VALIDATION =================
+
+        if (page < 0) {
+            throw new InvalidRequestException(
+                    "Page number cannot be negative");
+        }
+
+        if (size <= 0 || size > 100) {
+            throw new InvalidRequestException(
+                    "Page size must be between 1 and 100");
+        }
+
+        // ================= DATE VALIDATION =================
+
+        if (expiryBefore != null &&
+                expiryAfter != null &&
+                expiryBefore.isBefore(expiryAfter)) {
+
+            throw new InvalidRequestException(
+                    "expiryBefore cannot be earlier than expiryAfter");
+        }
+
+        // ================= SORT DIRECTION VALIDATION =================
+
+        if (!List.of("ASC", "DESC")
+                .contains(sortDir.toUpperCase())) {
+
+            throw new InvalidRequestException(
+                    "Invalid sort direction. Allowed values: ASC or DESC");
+        }
+
+        // ================= SORT FIELD VALIDATION =================
+
+        Set<String> allowedSortFields = Set.of(
+                "uploadedAt",
+                "updatedAt",
+                "title",
+                "documentType",
+                "documentCategory",
+                "expiryDate",
+                "version",
+                "status"
+        );
+
+        if (!allowedSortFields.contains(sortBy)) {
+
+            throw new InvalidRequestException(
+                    "Invalid sort field: " + sortBy);
+        }
+
+        // ================= VERIFICATION STATUS VALIDATION =================
+
+        if (verificationStatus != null &&
+                !List.of("PENDING", "VERIFIED", "REJECTED")
+                        .contains(verificationStatus.toUpperCase())) {
+
+            throw new InvalidRequestException(
+                    "Invalid verification status");
+        }
+
+        // ================= SORT =================
 
         Sort sort = Sort.by(
-                sortDir.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC,
+                Sort.Direction.valueOf(sortDir.toUpperCase()),
                 sortBy
         );
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Specification<EmployeeDocument> spec = buildSpecification(
-                employeeId,
-                documentType,
-                category,
-                verificationStatus,
-                isDeleted,
-                isPrimary,
-                expiryBefore,
-                expiryAfter,
-                expired,
-                search,
-                tags
-        );
+        // ================= SPECIFICATION =================
 
-        Page<EmployeeDocument> result = employeeDocumentRepository.findAll(spec, pageable);
+        Specification<EmployeeDocument> spec =
+                buildSpecification(
+                        employeeId,
+                        documentType,
+                        category,
+                        verificationStatus,
+                        isDeleted,
+                        isPrimary,
+                        expiryBefore,
+                        expiryAfter,
+                        expired,
+                        search,
+                        tags
+                );
 
-        List<DocumentResponse> content = result.getContent()
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+        Page<EmployeeDocument> result =
+                employeeDocumentRepository.findAll(spec, pageable);
+
+        // Optional Business Rule
+        if (result.isEmpty()) {
+            throw new NoDataFoundException(
+                    "No documents found for employee id: "
+                            + employeeId);
+        }
+
+        List<DocumentResponse> content =
+                result.getContent()
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList();
 
         return PageResponse.<DocumentResponse>builder()
                 .content(content)

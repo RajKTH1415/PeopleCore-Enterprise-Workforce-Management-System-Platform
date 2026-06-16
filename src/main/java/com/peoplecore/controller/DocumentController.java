@@ -4,6 +4,8 @@ import com.peoplecore.dto.response.*;
 import com.peoplecore.service.EmployeesDocumentsService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -78,7 +80,7 @@ public class DocumentController {
 
     @GetMapping("/{employeeId}/documents")
     public ResponseEntity<ApiResponse<PageResponse<DocumentResponse>>> getAllDocuments(
-            @PathVariable Long employeeId,
+            @PathVariable  @Positive(message = "Employee ID must be greater than zero") Long employeeId,
 
             @RequestParam(required = false) String documentType,
             @RequestParam(required = false) String category,
@@ -94,8 +96,13 @@ public class DocumentController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) List<String> tags,
 
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @Min(value = 0, message = "Page cannot be negative")
+            @RequestParam(defaultValue = "0")
+            int page,
+            @Min(value = 1, message = "Size must be greater than zero")
+            @Max(value = 100, message = "Maximum page size is 100")
+            @RequestParam(defaultValue = "10")
+            int size,
             @RequestParam(defaultValue = "uploadedAt") String sortBy,
             @RequestParam(defaultValue = "DESC") String sortDir, HttpServletRequest httpServletRequest) {
 
