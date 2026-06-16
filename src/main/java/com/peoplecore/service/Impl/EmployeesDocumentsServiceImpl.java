@@ -4,7 +4,9 @@ import com.peoplecore.dto.request.UpdateDocumentRequest;
 import com.peoplecore.dto.response.*;
 import com.peoplecore.enums.AccessType;
 import com.peoplecore.enums.ActionType;
+import com.peoplecore.exception.DocumentBulkDeletionException;
 import com.peoplecore.exception.DocumentUploadException;
+import com.peoplecore.exception.NoDataFoundException;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.*;
 import com.peoplecore.repository.*;
@@ -79,32 +81,62 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
 
     /*just for testing*/
     @Override
+    @Transactional
     public void deleteAllDocumentsSystem() {
 
-        List<EmployeeDocument> documents = employeeDocumentRepository.findAll();
+        List<EmployeeDocument> documents =
+                employeeDocumentRepository.findAll();
 
-        for (EmployeeDocument doc : documents) {
-
-            //  delete file
-            try {
-                if (doc.getFileUrl() != null) {
-                    Files.deleteIfExists(Paths.get(doc.getFileUrl()));
-                }
-            } catch (Exception ignored) {}
-
-            //  delete mappings first (FK safe)
-            employeeDocumentSkillMappingRepository.deleteByDocumentId(doc.getId());
-            employeeDocumentCertificationMappingRepository.deleteByDocumentId(doc.getId());
-
-            //  delete version history
-            documentVersionRepository.deleteByDocumentRefId(doc.getId());
-
-            //  delete audit logs
-            documentAuditRepository.deleteByDocumentId(doc.getId());
+        if (documents.isEmpty()) {
+            throw new NoDataFoundException(
+                    "No documents found to delete");
         }
 
-        // finally delete main table
-        employeeDocumentRepository.deleteAll();
+        try {
+
+            for (EmployeeDocument doc : documents) {
+
+                // Delete Physical File
+                if (doc.getFileUrl() != null &&
+                        !doc.getFileUrl().isBlank()) {
+
+                    Path path = Paths.get(doc.getFileUrl());
+
+                    if (Files.exists(path)) {
+                        Files.delete(path);
+                    }
+                }
+
+                // Delete Child Records First
+                employeeDocumentSkillMappingRepository
+                        .deleteByDocumentId(doc.getId());
+
+                employeeDocumentCertificationMappingRepository
+                        .deleteByDocumentId(doc.getId());
+
+                documentVersionRepository
+                        .deleteByDocumentRefId(doc.getId());
+
+                documentAuditRepository
+                        .deleteByDocumentId(doc.getId());
+            }
+
+            employeeDocumentRepository.deleteAll();
+
+        } catch (IOException ex) {
+
+            throw new DocumentBulkDeletionException(
+                    "Failed to delete document files",
+                    ex
+            );
+
+        } catch (Exception ex) {
+
+            throw new DocumentBulkDeletionException(
+                    "Failed to delete all documents",
+                    ex
+            );
+        }
     }
 
     @Override

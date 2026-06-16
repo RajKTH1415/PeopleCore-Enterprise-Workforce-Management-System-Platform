@@ -343,4 +343,21 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(DocumentBulkDeletionException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDocumentBulkDeletion(
+            DocumentBulkDeletionException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null
+                        )
+                );
+    }
 }
