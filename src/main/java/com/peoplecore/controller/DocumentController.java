@@ -66,8 +66,8 @@ public class DocumentController {
 
     @GetMapping("/{employeeId}/documents/{documentId}")
     public ResponseEntity<ApiResponse<DocumentDetailsResponse>> getDocumentById(
-            @PathVariable Long employeeId,
-            @PathVariable String documentId,
+            @PathVariable   @Positive(message = "Employee ID must be greater than zero") Long employeeId,
+            @PathVariable @NotBlank(message = "Document ID is required") String documentId,
             HttpServletRequest httpServletRequest) {
 
         DocumentDetailsResponse response =

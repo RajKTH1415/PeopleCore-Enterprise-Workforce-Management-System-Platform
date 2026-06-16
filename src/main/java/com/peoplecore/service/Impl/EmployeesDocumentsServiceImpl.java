@@ -142,14 +142,37 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
     @Override
     public DocumentDetailsResponse getDocumentById(Long employeeId, String documentId) {
 
+
+        Employee employee = employeeRepository
+                .findById(employeeId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Employee not found with id : "
+                                        + employeeId
+                        ));
+
         // 1. Fetch document
         EmployeeDocument doc = employeeDocumentRepository
                 .findByEmployeeIdAndDocumentId(employeeId, documentId)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Document not found with ID : "
+                                        + documentId
+                                        + " for employee : "
+                                        + employeeId
+                        ));
 
         //  2. Fetch version history
         List<DocumentVersionHistory> versions = documentVersionRepository
                 .findByDocumentRefIdOrderByVersionDesc(doc.getId());
+
+        if (versions.isEmpty()) {
+
+            throw new NoDataFoundException(
+                    "No version history found for document : "
+                            + documentId
+            );
+        }
 
         List<DocumentVersionDto> versionDtos = versions.stream()
                 .map(v -> DocumentVersionDto.builder()
@@ -169,7 +192,6 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
 
         List<DocumentAuditDto> auditDtos = audits.stream()
                 .map(a -> DocumentAuditDto.builder()
-                        .actionType(a.getActionType().name())
                         .actionType(a.getActionType().name())
                         .accessType(a.getAccessType().name())
                         .remarks(a.getRemarks())
