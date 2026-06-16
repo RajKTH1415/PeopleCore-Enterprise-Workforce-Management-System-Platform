@@ -166,7 +166,7 @@ public class DocumentController {
 
     @GetMapping("/{documentId}")
     public ResponseEntity<ApiResponse<DocumentResponse>> getDocumentById(
-            @PathVariable String documentId,
+            @PathVariable  @NotBlank(message = "Document ID is required") String documentId,
             HttpServletRequest httpServletRequest) {
 
         DocumentResponse response = employeesDocumentsService.getDocumentById(documentId);
