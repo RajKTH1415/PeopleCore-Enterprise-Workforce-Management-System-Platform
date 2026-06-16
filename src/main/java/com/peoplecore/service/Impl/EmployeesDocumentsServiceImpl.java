@@ -4,6 +4,7 @@ import com.peoplecore.dto.request.UpdateDocumentRequest;
 import com.peoplecore.dto.response.*;
 import com.peoplecore.enums.AccessType;
 import com.peoplecore.enums.ActionType;
+import com.peoplecore.enums.DocumentType;
 import com.peoplecore.exception.*;
 import com.peoplecore.module.*;
 import com.peoplecore.repository.*;
@@ -670,44 +671,125 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
             String sortDir
     ) {
 
-        // SAFE SORT
-        Set<String> allowedSortFields = Set.of(
-                "uploadedAt", "updatedAt", "fileName", "documentType"
-        );
+        // ================= EMPLOYEE VALIDATION =================
 
-        sortBy = (sortBy == null || sortBy.isBlank()) ? "uploadedAt" : sortBy.trim();
+        if (employeeId != null) {
 
-        if (sortBy.contains(",")) {
-            sortBy = sortBy.split(",")[0];
+            employeeRepository.findById(employeeId)
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    "Employee not found with id: " + employeeId));
         }
 
-        if (!allowedSortFields.contains(sortBy)) {
+        // ================= PAGINATION VALIDATION =================
+
+        if (page < 0) {
+            throw new InvalidRequestException(
+                    "Page number cannot be negative");
+        }
+
+        if (size < 1 || size > 100) {
+            throw new InvalidRequestException(
+                    "Page size must be between 1 and 100");
+        }
+
+        // ================= SORT VALIDATION =================
+
+        Set<String> allowedSortFields = Set.of(
+                "uploadedAt",
+                "updatedAt",
+                "fileName",
+                "documentType",
+                "documentCategory",
+                "expiryDate",
+                "version",
+                "status"
+        );
+
+        if (sortBy == null || sortBy.isBlank()) {
             sortBy = "uploadedAt";
         }
 
+        if (!allowedSortFields.contains(sortBy)) {
+            throw new InvalidRequestException(
+                    "Invalid sort field: " + sortBy);
+        }
+
+        if (!List.of("ASC", "DESC")
+                .contains(sortDir.toUpperCase())) {
+
+            throw new InvalidRequestException(
+                    "Invalid sort direction. Allowed values: ASC or DESC");
+        }
+
+        // ================= DOCUMENT TYPE VALIDATION =================
+
+        if (type != null && !type.isBlank()) {
+
+            try {
+                DocumentType.valueOf(type.toUpperCase());
+            } catch (Exception ex) {
+
+                throw new InvalidRequestException(
+                        "Invalid document type: " + type);
+            }
+        }
+
+        // ================= STATUS VALIDATION =================
+
+        if (status != null &&
+                !List.of("ACTIVE", "INACTIVE", "ARCHIVED")
+                        .contains(status.toUpperCase())) {
+
+            throw new InvalidRequestException(
+                    "Invalid document status");
+        }
+
+        // ================= VERIFICATION STATUS =================
+
+        if (verificationStatus != null &&
+                !List.of("PENDING", "VERIFIED", "REJECTED")
+                        .contains(verificationStatus.toUpperCase())) {
+
+            throw new InvalidRequestException(
+                    "Invalid verification status");
+        }
+
+        // ================= SORT =================
+
         Sort sort = Sort.by(
-                sortDir.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC,
+                Sort.Direction.valueOf(sortDir.toUpperCase()),
                 sortBy
         );
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable =
+                PageRequest.of(page, size, sort);
 
-        Specification<EmployeeDocument> spec = buildSpecification(
-                employeeId,
-                type,
-                status,
-                verificationStatus,
-                category,
-                isDeleted,
-                isPrimary,
-                search,
-                tags
-        );
+        // ================= QUERY =================
 
-        Page<EmployeeDocument> result = employeeDocumentRepository.findAll(spec, pageable);
+        Specification<EmployeeDocument> spec =
+                buildSpecification(
+                        employeeId,
+                        type,
+                        status,
+                        verificationStatus,
+                        category,
+                        isDeleted,
+                        isPrimary,
+                        search,
+                        tags
+                );
+
+        Page<EmployeeDocument> result =
+                employeeDocumentRepository.findAll(spec, pageable);
 
         return PageResponse.<DocumentResponse>builder()
-                .content(result.getContent().stream().map(this::mapToResponse).toList())
+                .content(
+                        result.getContent()
+                                .stream()
+                                .map(this::mapToResponse)
+                                .toList()
+                )
                 .page(result.getNumber())
                 .size(result.getSize())
                 .totalElements(result.getTotalElements())

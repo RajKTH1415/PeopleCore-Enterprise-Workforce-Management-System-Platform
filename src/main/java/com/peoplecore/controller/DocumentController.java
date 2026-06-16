@@ -128,7 +128,7 @@ public class DocumentController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<DocumentResponse>>> getDocuments(
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false)   @Positive(message = "Employee ID must be greater than zero") Long employeeId,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String verificationStatus,
