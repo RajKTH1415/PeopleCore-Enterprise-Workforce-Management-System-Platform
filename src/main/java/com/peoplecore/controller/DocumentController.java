@@ -4,10 +4,13 @@ import com.peoplecore.dto.response.*;
 import com.peoplecore.service.EmployeesDocumentsService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
@@ -15,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/employees/documents")
+@Validated
 public class DocumentController {
 
 
@@ -27,11 +31,11 @@ public class DocumentController {
 
     @PostMapping(value = "/{employeeId}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<DocumentResponse>> uploadDocument(
-            @PathVariable Long employeeId,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam String documentType,
-            @RequestParam String category,
-            @RequestParam String title,
+            @PathVariable   @Positive(message = "Employee id must be positive") Long employeeId,
+            @RequestParam("file")  MultipartFile file,
+            @RequestParam    @NotBlank(message = "Document type is required") String documentType,
+            @RequestParam   @NotBlank(message = "Category is required") String category,
+            @RequestParam  @NotBlank(message = "Title is required") String title,
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String documentNumber,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate issueDate,

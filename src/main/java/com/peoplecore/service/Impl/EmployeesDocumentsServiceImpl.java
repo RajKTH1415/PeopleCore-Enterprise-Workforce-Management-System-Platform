@@ -4,12 +4,15 @@ import com.peoplecore.dto.request.UpdateDocumentRequest;
 import com.peoplecore.dto.response.*;
 import com.peoplecore.enums.AccessType;
 import com.peoplecore.enums.ActionType;
+import com.peoplecore.exception.DocumentUploadException;
+import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.*;
 import com.peoplecore.repository.*;
 import com.peoplecore.service.EmployeesDocumentsService;
 import com.peoplecore.service.FileStorageService;
 import com.peoplecore.service.OcrService;
 import com.peoplecore.service.SkillParserService;
+import com.peoplecore.util.DocumentValidator;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +28,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -200,19 +204,14 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
         try {
 
             // 1. FILE VALIDATION
-            if (file.isEmpty()) {
-                throw new RuntimeException("File is empty");
-            }
-
-            long MAX_SIZE = 5 * 1024 * 1024; // 5MB
-            if (file.getSize() > MAX_SIZE) {
-                throw new RuntimeException("File exceeds 5MB limit");
-            }
-
-            List<String> allowedTypes = List.of("application/pdf", "image/jpeg", "image/jpg");
-            if (!allowedTypes.contains(file.getContentType())) {
-                throw new RuntimeException("Invalid file type. Only PDF/JPG allowed");
-            }
+            DocumentValidator.validate(
+                    file,
+                    documentType,
+                    category,
+                    title,
+                    issueDate,
+                    expiryDate
+            );
 
             //  2. READ FILE BYTES (IMPORTANT FIX)
             byte[] fileBytes = file.getBytes();
@@ -321,8 +320,12 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
             if ("CERTIFICATE".equalsIgnoreCase(documentType)) {
 
                 //  1. Fetch employee
-                Employee employee = employeeRepository.findById(employeeId)
-                        .orElseThrow(() -> new RuntimeException("Employee not found"));
+                Employee employee = employeeRepository
+                        .findById(employeeId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Employee not found with id: "
+                                                + employeeId));
 
                 //  2. Fetch certification (by title)
                 Certification certification = certificationRepository
@@ -355,11 +358,11 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
                                     return employeeCertificationsRepository.save(newEmpCert);
                                 });
 
-                boolean exists = employeeDocumentCertificationMappingRepository
-                        .existsByDocumentIdAndEmployeeCertificationId(
-                                doc.getId(),
-                                employeeCertification.getId()
-                        );
+//                boolean exists = employeeDocumentCertificationMappingRepository
+//                        .existsByDocumentIdAndEmployeeCertificationId(
+//                                doc.getId(),
+//                                employeeCertification.getId()
+//                        );
 
                 if (!employeeDocumentCertificationMappingRepository
                         .existsByDocumentIdAndEmployeeCertificationId(
@@ -396,9 +399,6 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
                 employeeDocumentSkillMappingRepository.saveAll(mappings);
             }
 
-//            String actionValue = existingDocOpt.isPresent()
-//                    ? "Document updated"
-//                    : "Document uploaded";
 
             ActionType actionType = existingDocOpt.isPresent()
                     ? ActionType.REPLACE_FILE
@@ -417,7 +417,7 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
                     .fileName(doc.getFileName())
                     .fileUrl(doc.getFileUrl())
                     .remarks(existingDocOpt.isPresent() ? "Version updated" : "Initial upload")
-                    .actionType(ActionType.UPLOAD) //
+//                    .actionType(ActionType.UPLOAD) //
                     .accessType(AccessType.WRITE)
                     .performedBy("SYSTEM")
                     .status("SUCCESS")
@@ -441,7 +441,8 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
                     .fileSize(file.getSize())
                     .version(version)
                     .issueDate(issueDate)
-                    .isPrimary(true)
+//                    .isPrimary(true)
+                    .isPrimary(doc.getIsPrimary())
                     .expiryDate(doc.getExpiryDate())
                     .tags(tags)
                     .status("ACTIVE")
@@ -450,8 +451,10 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
                     .updatedAt(LocalDateTime.now())
                     .build();
 
-        } catch (Exception e) {
-            throw new RuntimeException("File upload failed: " + e.getMessage());
+        } catch (IOException ex) {
+
+            throw new DocumentUploadException(
+                    "Unable to store document file");
         }
 
     }

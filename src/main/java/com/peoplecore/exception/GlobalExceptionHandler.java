@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -268,5 +269,78 @@ public class GlobalExceptionHandler {
                         null
                 )
         );
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleMaxFileSize(
+            MaxUploadSizeExceededException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.BAD_REQUEST,
+                                "File size exceeds allowed limit",
+                                request.getRequestURI(),
+                                null
+                        )
+                );
+    }
+
+
+    @ExceptionHandler(FileValidationException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleFileValidation(
+            FileValidationException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null
+                        )
+                );
+    }
+
+    @ExceptionHandler(DocumentUploadException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleDocumentUpload(
+            DocumentUploadException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null
+                        )
+                );
+    }
+
+    @ExceptionHandler(InvalidDocumentException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleInvalidDocument(
+            InvalidDocumentException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null
+                        )
+                );
     }
 }
