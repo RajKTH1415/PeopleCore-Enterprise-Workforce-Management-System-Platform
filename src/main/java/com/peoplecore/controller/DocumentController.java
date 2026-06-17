@@ -223,9 +223,17 @@ public class DocumentController {
 
     @PutMapping("/{employeeId}/documents/{documentId}/versions/{version}/restore")
     public ResponseEntity<ApiResponse<DocumentResponse>> restoreVersion(
-            @PathVariable Long employeeId,
-            @PathVariable String documentId,
-            @PathVariable Integer version,
+            @PathVariable
+            @Positive(message = "Employee ID must be greater than zero")
+            Long employeeId,
+
+            @PathVariable
+            @NotBlank(message = "Document ID is required")
+            String documentId,
+
+            @PathVariable
+            @Positive(message = "Version must be greater than zero")
+            Integer version,
             HttpServletRequest request) {
 
         DocumentResponse response = employeesDocumentsService

@@ -1028,14 +1028,38 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
     public DocumentResponse restoreVersion(Long employeeId, String documentId, Integer version, HttpServletRequest request) {
 
         // 1. Fetch document
-       EmployeeDocument document = employeeDocumentRepository.findByDocumentId(documentId).orElseThrow(() -> new RuntimeException("Document not found"));
+        EmployeeDocument document =
+                employeeDocumentRepository.findByDocumentId(documentId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Document not found with id: "
+                                                + documentId));
         // 2. Ownership check
         if (!document.getEmployeeId().equals(employeeId)){
-            throw new RuntimeException("Unauthorized access");
+            throw new UnauthorizedResourceAccessException(
+                    "Document does not belong to employee id: "
+                            + employeeId
+            );
+        }
+
+        if (Boolean.TRUE.equals(document.getIsDeleted())) {
+
+            throw new InvalidRequestException(
+                    "Cannot restore version of deleted document");
         }
         //fetch requested version
         DocumentVersionHistory oldVersion = documentVersionRepository.findByDocumentIdAndVersion(documentId, version)
-                .orElseThrow(()-> new RuntimeException("Version not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Version " + version +
+                                        " not found for document "
+                                        + documentId));
+
+        if (document.getVersion().equals(version)) {
+            throw new InvalidRequestException(
+                    "Current version cannot be restored");
+        }
+
 
         String oldValueJson = toJson(document);
 
