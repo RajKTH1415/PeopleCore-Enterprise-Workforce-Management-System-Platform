@@ -873,68 +873,74 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
 
     @Override
     @Transactional
-    public DeleteDocumentResponse deleteDocument(Long employeeId, String documentId, HttpServletRequest request) {
+    public DeleteDocumentResponse deleteDocument(
+            Long employeeId,
+            String documentId,
+            HttpServletRequest request) {
 
         EmployeeDocument doc = employeeDocumentRepository
                 .findByDocumentId(documentId)
                 .orElseThrow(() ->
-                        new RuntimeException("Document not found: " + documentId));
+                        new ResourceNotFoundException(
+                                "Document not found with id: " + documentId));
 
-        // Ownership validation
+        // Ownership Validation
         if (!doc.getEmployeeId().equals(employeeId)) {
-            throw new RuntimeException("Unauthorized access");
+
+            throw new AccessDeniedException(
+                    "Document does not belong to employee id: "
+                            + employeeId);
         }
 
-        //  Already deleted check
+        // Already Deleted Validation
         if (Boolean.TRUE.equals(doc.getIsDeleted())) {
-            throw new RuntimeException("Document already deleted");
+
+            throw new InvalidRequestException(
+                    "Document has already been deleted");
         }
 
         String oldValue = convertToJson(doc);
 
         doc.setIsDeleted(true);
         doc.setDeletedAt(LocalDateTime.now());
-
-
-        doc.setDeletedBy("SYSTEM"); // or logged-in user
-
+        doc.setDeletedBy("SYSTEM");
         doc.setUpdatedAt(LocalDateTime.now());
 
+        // Remove Primary Flag
         if (Boolean.TRUE.equals(doc.getIsPrimary())) {
             doc.setIsPrimary(false);
         }
 
-        employeeDocumentRepository.save(doc);
+        EmployeeDocument saved =
+                employeeDocumentRepository.save(doc);
 
-        String newValue = convertToJson(doc);
+        String newValue = convertToJson(saved);
 
-
-        EmployeeDocumentAudit audit = EmployeeDocumentAudit.builder()
-                .documentId(doc.getId())
-                .employeeId(doc.getEmployeeId())
-                .actionType(ActionType.DELETE) // business action
-                .actionType(ActionType.UPDATE_METADATA) //  DB allowed
-                .accessType(AccessType.WRITE) //  DB allowed
-                .fileName(doc.getFileName())
-                .fileUrl(doc.getFileUrl())
-                .remarks("Document soft deleted")
-                .performedBy("SYSTEM")
-                .performedAt(LocalDateTime.now())
-                .ipAddress(request.getRemoteAddr())
-                .userAgent(request.getHeader("User-Agent"))
-                .status("SUCCESS")
-                .oldValue(oldValue)
-                .newValue(newValue)
-                .build();
+        EmployeeDocumentAudit audit =
+                EmployeeDocumentAudit.builder()
+                        .documentId(saved.getId())
+                        .employeeId(saved.getEmployeeId())
+                        .actionType(ActionType.DELETE)
+                        .accessType(AccessType.WRITE)
+                        .fileName(saved.getFileName())
+                        .fileUrl(saved.getFileUrl())
+                        .remarks("Document soft deleted")
+                        .performedBy("SYSTEM")
+                        .performedAt(LocalDateTime.now())
+                        .ipAddress(request.getRemoteAddr())
+                        .userAgent(request.getHeader("User-Agent"))
+                        .status("SUCCESS")
+                        .oldValue(oldValue)
+                        .newValue(newValue)
+                        .build();
 
         documentAuditRepository.save(audit);
 
-        //  Response
         return DeleteDocumentResponse.builder()
-                .documentId(doc.getDocumentId())
+                .documentId(saved.getDocumentId())
                 .deleted(true)
-                .deletedAt(doc.getDeletedAt())
-                .deletedBy(doc.getDeletedBy())
+                .deletedAt(saved.getDeletedAt())
+                .deletedBy(saved.getDeletedBy())
                 .build();
     }
 

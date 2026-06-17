@@ -191,8 +191,12 @@ public class DocumentController {
 
     @DeleteMapping("/{employeeId}/documents/{documentId}")
     public ResponseEntity<ApiResponse<DeleteDocumentResponse>> softDeleteDocument(
-            @PathVariable Long employeeId,
-            @PathVariable String documentId,
+            @PathVariable
+            @Positive(message = "Employee ID must be greater than zero")
+            Long employeeId,
+            @PathVariable
+            @NotBlank(message = "Document ID is required")
+            String documentId,
             HttpServletRequest httpServletRequest) {
 
         DeleteDocumentResponse deleteDocumentResponse = employeesDocumentsService.deleteDocument(employeeId, documentId, httpServletRequest);
