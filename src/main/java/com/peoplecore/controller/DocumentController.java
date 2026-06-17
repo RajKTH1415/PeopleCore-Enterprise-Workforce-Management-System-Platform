@@ -4,6 +4,7 @@ import com.peoplecore.dto.response.*;
 import com.peoplecore.service.EmployeesDocumentsService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -175,9 +176,9 @@ public class DocumentController {
 
     @PutMapping("/{employeeId}/documents/{documentId}")
     public ResponseEntity<ApiResponse<DocumentResponse>> updateDocumentMetadata(
-            @PathVariable Long employeeId,
-            @PathVariable String documentId,
-            @RequestBody UpdateDocumentRequest request,
+            @PathVariable @Positive(message = "Employee ID must be greater than zero") Long employeeId,
+            @PathVariable @NotBlank(message = "Document ID is required") String documentId,
+            @RequestBody @Valid  UpdateDocumentRequest request,
             HttpServletRequest httpServletRequest) {
 
         DocumentResponse response = employeesDocumentsService.updateDocumentMetadata(
