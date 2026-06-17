@@ -962,61 +962,62 @@ public class EmployeesDocumentsServiceImpl implements EmployeesDocumentsService 
         EmployeeDocument doc = employeeDocumentRepository
                 .findByDocumentId(documentId)
                 .orElseThrow(() ->
-                        new RuntimeException("Document not found: " + documentId)
-                );
+                        new ResourceNotFoundException(
+                                "Document not found with id: "
+                                        + documentId));
 
-        // Ownership validation
+        // Ownership Validation
         if (!doc.getEmployeeId().equals(employeeId)) {
-            throw new RuntimeException("Unauthorized access");
+
+            throw new UnauthorizedResourceAccessException(
+                    "Document does not belong to employee id: "
+                            + employeeId);
         }
 
-        //  If not deleted
+        // Document Not Deleted Validation
         if (!Boolean.TRUE.equals(doc.getIsDeleted())) {
-            throw new RuntimeException("Document is not deleted");
+
+            throw new InvalidRequestException(
+                    "Document is not deleted");
         }
 
-        // 🔹 Take snapshot BEFORE restore
         String oldValue = convertToJson(doc);
 
-        //  Restore logic
+        // Restore
         doc.setIsDeleted(false);
         doc.setDeletedAt(null);
         doc.setDeletedBy(null);
         doc.setUpdatedAt(LocalDateTime.now());
 
-        employeeDocumentRepository.save(doc);
+        EmployeeDocument saved =
+                employeeDocumentRepository.save(doc);
 
-        //  AFTER restore
-        String newValue = convertToJson(doc);
+        String newValue = convertToJson(saved);
 
+        String user = "SYSTEM";
 
-        String user = "SYSTEM"; // replace with logged-in user
-
-        // Save audit
-        EmployeeDocumentAudit audit = EmployeeDocumentAudit.builder()
-                .documentId(doc.getId())
-                .employeeId(doc.getEmployeeId())
-                .actionType(ActionType.RESTORE)
-                .actionType(ActionType.UPDATE_METADATA)
-                .accessType(AccessType.WRITE)
-                .fileName(doc.getFileName())
-                .fileUrl(doc.getFileUrl())
-                .remarks("Document restored")
-                .performedBy(user)
-                .performedAt(LocalDateTime.now())
-                .ipAddress(request.getRemoteAddr())
-                .userAgent(request.getHeader("User-Agent"))
-                .status(doc.getStatus())
-                .oldValue(oldValue)
-                .status("SUCCESS")
-                .newValue(newValue)
-                .build();
+        EmployeeDocumentAudit audit =
+                EmployeeDocumentAudit.builder()
+                        .documentId(saved.getId())
+                        .employeeId(saved.getEmployeeId())
+                        .actionType(ActionType.RESTORE)
+                        .accessType(AccessType.WRITE)
+                        .fileName(saved.getFileName())
+                        .fileUrl(saved.getFileUrl())
+                        .remarks("Document restored")
+                        .performedBy(user)
+                        .performedAt(LocalDateTime.now())
+                        .ipAddress(request.getRemoteAddr())
+                        .userAgent(request.getHeader("User-Agent"))
+                        .status("SUCCESS")
+                        .oldValue(oldValue)
+                        .newValue(newValue)
+                        .build();
 
         documentAuditRepository.save(audit);
 
-        //  Response
         return RestoreDocumentResponse.builder()
-                .documentId(doc.getDocumentId())
+                .documentId(saved.getDocumentId())
                 .restored(true)
                 .restoredAt(LocalDateTime.now())
                 .restoredBy(user)

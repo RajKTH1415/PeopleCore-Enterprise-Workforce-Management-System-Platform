@@ -206,8 +206,13 @@ public class DocumentController {
 
     @PutMapping("/{employeeId}/documents/{documentId}/restore")
     public ResponseEntity<ApiResponse<RestoreDocumentResponse>> restoreDocument(
-            @PathVariable Long employeeId,
-            @PathVariable String documentId,
+            @PathVariable
+            @Positive(message = "Employee ID must be greater than zero")
+            Long employeeId,
+
+            @PathVariable
+            @NotBlank(message = "Document ID is required")
+            String documentId,
             HttpServletRequest request) {
 
         RestoreDocumentResponse response =
