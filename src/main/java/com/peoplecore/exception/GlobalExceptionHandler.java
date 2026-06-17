@@ -19,6 +19,31 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // ================= COMMON ERROR BUILDER =================
+    private ResponseEntity<ApiResponse<ErrorResponse>> buildError(
+            HttpStatus status,
+            String message,
+            HttpServletRequest request,
+            Map<String, String> validationErrors
+    ) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .error(status.getReasonPhrase())
+                .message(message)
+                .validationErrors(validationErrors)
+                .build();
+
+        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
+                .status(status.value())
+                .message(message)
+                .path(request.getRequestURI())
+                .data(errorResponse)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(status).body(response);
+    }
+
     // ================= DTO VALIDATION =================
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<ErrorResponse>> handleValidationException(
@@ -33,24 +58,36 @@ public class GlobalExceptionHandler {
                         errors.put(error.getField(), error.getDefaultMessage())
                 );
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .error("Validation Failed")
-                .message("Request validation error")
-                .validationErrors(errors)
-                .build();
-
-        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .message("Validation Failed")
-                .path(request.getRequestURI())
-                .data(errorResponse)
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        return ResponseEntity.badRequest().body(response);
+        return buildError(
+                HttpStatus.BAD_REQUEST,
+                "Validation Failed",
+                request,
+                errors
+        );
     }
 
-    // ================= BAD REQUEST (ALL USER OPS) =================
+    // ================= CONSTRAINT VALIDATION =================
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleConstraint(
+            ConstraintViolationException ex,
+            HttpServletRequest request
+    ) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getConstraintViolations().forEach(v ->
+                errors.put(v.getPropertyPath().toString(), v.getMessage())
+        );
+
+        return buildError(
+                HttpStatus.BAD_REQUEST,
+                "Validation Failed",
+                request,
+                errors
+        );
+    }
+
+    // ================= BAD REQUEST =================
     @ExceptionHandler({
             BadRequestException.class,
             UserRestoreException.class,
@@ -58,422 +95,167 @@ public class GlobalExceptionHandler {
             UserActivationException.class,
             UserDeletionException.class,
             UserSoftDeleteException.class,
-            UserUpdateException.class
+            UserUpdateException.class,
+            InvalidRequestException.class,
+            IllegalArgumentException.class
     })
-    public ResponseEntity<ErrorResponse> handleBadRequest(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleBadRequest(
             RuntimeException ex,
             HttpServletRequest request
     ) {
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    // ================= DUPLICATE =================
-    @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ApiResponse<ErrorResponse>> handleDuplicate(
-            DuplicateResourceException ex,
-            HttpServletRequest request
-    ) {
-
-        ErrorResponse error = ErrorResponse.builder()
-                .error(HttpStatus.CONFLICT.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        ApiResponse<ErrorResponse> response = ApiResponse.<ErrorResponse>builder()
-                .status(HttpStatus.CONFLICT.value())
-                .message("Resource already exists")
-                .path(request.getRequestURI())
-                .data(error)
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        return buildError(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage(),
+                request,
+                null
+        );
     }
 
     // ================= NOT FOUND =================
     @ExceptionHandler({
             ResourceNotFoundException.class,
-            UserNotFoundException.class
+            UserNotFoundException.class,
+            DocumentNotFoundException.class
     })
-    public ResponseEntity<ErrorResponse> handleNotFound(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleNotFound(
             RuntimeException ex,
             HttpServletRequest request
     ) {
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
+        return buildError(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                request,
+                null
+        );
+    }
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    // ================= CONFLICT (DUPLICATE) =================
+    @ExceptionHandler({
+            DuplicateResourceException.class,
+            DocumentAlreadyVerifiedException.class,
+            DocumentAlreadyRejectedException.class,
+            CountryAlreadyExistsException.class
+    })
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleConflict(
+            RuntimeException ex,
+            HttpServletRequest request
+    ) {
+
+        return buildError(
+                HttpStatus.CONFLICT,
+                ex.getMessage(),
+                request,
+                null
+        );
     }
 
     // ================= UNAUTHORIZED =================
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorized(
+    @ExceptionHandler({
+            UnauthorizedException.class
+    })
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleUnauthorized(
             UnauthorizedException ex,
             HttpServletRequest request
     ) {
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        return buildError(
+                HttpStatus.UNAUTHORIZED,
+                ex.getMessage(),
+                request,
+                null
+        );
     }
 
     // ================= FORBIDDEN =================
-    @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<ErrorResponse> handleForbidden(
-            ForbiddenException ex,
+    @ExceptionHandler({
+            ForbiddenException.class,
+            AccessDeniedException.class,
+            UnauthorizedResourceAccessException.class
+    })
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleForbidden(
+            RuntimeException ex,
             HttpServletRequest request
     ) {
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .error(HttpStatus.FORBIDDEN.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        return buildError(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage(),
+                request,
+                null
+        );
     }
 
-    // ================= DATABASE ERROR =================
+    // ================= DATABASE =================
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDB(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleDB(
             DataIntegrityViolationException ex,
             HttpServletRequest request
     ) {
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .error(HttpStatus.CONFLICT.getReasonPhrase())
-                .message("Database integrity violation")
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+        return buildError(
+                HttpStatus.CONFLICT,
+                "Database integrity violation",
+                request,
+                null
+        );
     }
 
-    // ================= CONSTRAINT VALIDATION =================
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraint(
-            ConstraintViolationException ex,
+    // ================= FILE / UPLOAD =================
+    @ExceptionHandler({
+            MaxUploadSizeExceededException.class,
+            FileValidationException.class,
+            DocumentUploadException.class,
+            InvalidDocumentException.class
+    })
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleFileErrors(
+            RuntimeException ex,
             HttpServletRequest request
     ) {
 
-        Map<String, String> validationErrors = new HashMap<>();
+        HttpStatus status = (ex instanceof DocumentUploadException)
+                ? HttpStatus.INTERNAL_SERVER_ERROR
+                : HttpStatus.BAD_REQUEST;
 
-        ex.getConstraintViolations().forEach(v ->
-                validationErrors.put(v.getPropertyPath().toString(), v.getMessage())
+        return buildError(
+                status,
+                ex.getMessage(),
+                request,
+                null
         );
+    }
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message("Validation Failed")
-                .path(request.getRequestURI())
-                .validationErrors(validationErrors)
-                .build();
+    // ================= BULK OPERATIONS =================
+    @ExceptionHandler({
+            UserBulkDeletionException.class,
+            DocumentBulkDeletionException.class
+    })
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleBulk(
+            RuntimeException ex,
+            HttpServletRequest request
+    ) {
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return buildError(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ex.getMessage(),
+                request,
+                null
+        );
     }
 
     // ================= GLOBAL FALLBACK =================
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobal(
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleGlobal(
             Exception ex,
             HttpServletRequest request
     ) {
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message("Something went wrong")
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(UserBulkDeletionException.class)
-    public ResponseEntity<ErrorResponse> handleUserBulkDeletionException(
-            UserBulkDeletionException ex,
-            HttpServletRequest request
-    ) {
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return new ResponseEntity<>(
-                errorResponse,
-                HttpStatus.INTERNAL_SERVER_ERROR
+        return buildError(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Something went wrong",
+                request,
+                null
         );
-    }
-
-    @ExceptionHandler(NoDataFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleNoData(
-            NoDataFoundException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(
-                        HttpStatus.NOT_FOUND,
-                        ex.getMessage(),
-                        request.getRequestURI(),
-                        null
-                ));
-    }
-    @ExceptionHandler(CountryAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse<Object>> handleCountryAlreadyExists(
-            CountryAlreadyExistsException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(
-                       HttpStatus.CONFLICT,
-                        ex.getMessage(),
-                        request.getRequestURI(),
-                        null
-                ));
-    }
-    @ExceptionHandler(InvalidRequestException.class)
-    public ResponseEntity<ApiResponse<String>> handleInvalidRequest(
-            InvalidRequestException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ApiResponse.error(
-                        HttpStatus.BAD_REQUEST,
-                        ex.getMessage(),
-                        request.getRequestURI(),
-                        null
-                )
-        );
-    }
-
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ApiResponse<Object>>
-    handleMaxFileSize(
-            MaxUploadSizeExceededException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.BAD_REQUEST,
-                                "File size exceeds allowed limit",
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-
-
-    @ExceptionHandler(FileValidationException.class)
-    public ResponseEntity<ApiResponse<Object>>
-    handleFileValidation(
-            FileValidationException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.BAD_REQUEST,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-
-    @ExceptionHandler(DocumentUploadException.class)
-    public ResponseEntity<ApiResponse<Object>>
-    handleDocumentUpload(
-            DocumentUploadException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.INTERNAL_SERVER_ERROR,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-
-    @ExceptionHandler(InvalidDocumentException.class)
-    public ResponseEntity<ApiResponse<Object>>
-    handleInvalidDocument(
-            InvalidDocumentException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.BAD_REQUEST,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-
-    @ExceptionHandler(DocumentBulkDeletionException.class)
-    public ResponseEntity<ApiResponse<Object>> handleDocumentBulkDeletion(
-            DocumentBulkDeletionException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.INTERNAL_SERVER_ERROR,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<Object>> handleAccessDeniedException(
-            AccessDeniedException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.FORBIDDEN,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-    @ExceptionHandler(UnauthorizedResourceAccessException.class)
-    public ResponseEntity<ApiResponse<Object>> handleUnauthorizedResourceAccessException(
-            UnauthorizedResourceAccessException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.FORBIDDEN,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-    @ExceptionHandler(DocumentNotFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleDocumentNotFound(
-            DocumentNotFoundException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.NOT_FOUND,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-
-    @ExceptionHandler(DocumentAlreadyVerifiedException.class)
-    public ResponseEntity<ApiResponse<Object>> handleAlreadyVerified(
-            DocumentAlreadyVerifiedException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.CONFLICT,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-
-    @ExceptionHandler(InvalidDocumentStatusException.class)
-    public ResponseEntity<ApiResponse<Object>> handleInvalidStatus(
-            InvalidDocumentStatusException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.BAD_REQUEST,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(
-            IllegalArgumentException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.BAD_REQUEST,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
-    }
-    @ExceptionHandler(DocumentAlreadyRejectedException.class)
-    public ResponseEntity<ApiResponse<Object>>
-    handleDocumentAlreadyRejectedException(
-            DocumentAlreadyRejectedException ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(
-                        ApiResponse.error(
-                                HttpStatus.CONFLICT,
-                                ex.getMessage(),
-                                request.getRequestURI(),
-                                null
-                        )
-                );
     }
 }
