@@ -25,7 +25,9 @@ public class DocumentVerificationController {
     }
 
     @PutMapping("/{documentId}/reject")
-    public ResponseEntity<ApiResponse<DocumentResponse>> rejectDocument(@PathVariable String documentId, @RequestParam String reason, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<DocumentResponse>> rejectDocument(@PathVariable @NotBlank(message = "Document ID is required") String documentId,
+                                                                          @RequestParam @NotBlank(message = "Rejection reason is required")
+                                                                          String reason, HttpServletRequest httpServletRequest) {
         DocumentResponse response = documentVerificationService.rejectDocument(documentId, reason, httpServletRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Document rejected successfully", httpServletRequest.getRequestURI(), response));
     }

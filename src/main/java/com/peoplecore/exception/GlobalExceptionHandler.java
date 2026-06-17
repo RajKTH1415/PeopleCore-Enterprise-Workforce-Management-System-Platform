@@ -459,4 +459,21 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+    @ExceptionHandler(DocumentAlreadyRejectedException.class)
+    public ResponseEntity<ApiResponse<Object>>
+    handleDocumentAlreadyRejectedException(
+            DocumentAlreadyRejectedException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.CONFLICT,
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null
+                        )
+                );
+    }
 }

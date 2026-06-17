@@ -2,6 +2,10 @@ package com.peoplecore.service.Impl;
 
 import com.peoplecore.dto.response.DocumentResponse;
 import com.peoplecore.enums.ActionType;
+import com.peoplecore.exception.DocumentAlreadyRejectedException;
+import com.peoplecore.exception.DocumentAlreadyVerifiedException;
+import com.peoplecore.exception.DocumentNotFoundException;
+import com.peoplecore.exception.InvalidDocumentStatusException;
 import com.peoplecore.module.EmployeeDocument;
 import com.peoplecore.module.EmployeeDocumentAudit;
 import com.peoplecore.repository.DocumentAuditRepository;
@@ -9,6 +13,7 @@ import com.peoplecore.repository.EmployeeDocumentRepository;
 import com.peoplecore.service.DocumentVerificationService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -73,16 +78,42 @@ public class DocumentVerificationServiceImpl implements DocumentVerificationServ
     }
 
     @Override
+    @Transactional
     public DocumentResponse rejectDocument(
             String documentId,
             String reason,
-            HttpServletRequest request
-    ) {
+            HttpServletRequest request) {
+
+        if (documentId == null || documentId.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Document ID cannot be empty");
+        }
+
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Rejection reason cannot be empty");
+        }
 
         EmployeeDocument document =
                 employeeDocumentRepository.findByDocumentId(documentId)
                         .orElseThrow(() ->
-                                new RuntimeException("Document not found"));
+                                new DocumentNotFoundException(
+                                        "Document not found with ID : "
+                                                + documentId));
+
+        if ("REJECTED".equalsIgnoreCase(
+                document.getVerificationStatus())) {
+
+            throw new DocumentAlreadyRejectedException(
+                    "Document is already rejected");
+        }
+
+        if ("VERIFIED".equalsIgnoreCase(
+                document.getVerificationStatus())) {
+
+            throw new InvalidDocumentStatusException(
+                    "Verified document cannot be rejected");
+        }
 
         String oldStatus = document.getVerificationStatus();
 
