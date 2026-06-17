@@ -392,4 +392,71 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+    @ExceptionHandler(DocumentNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDocumentNotFound(
+            DocumentNotFoundException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.NOT_FOUND,
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null
+                        )
+                );
+    }
+
+    @ExceptionHandler(DocumentAlreadyVerifiedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAlreadyVerified(
+            DocumentAlreadyVerifiedException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.CONFLICT,
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null
+                        )
+                );
+    }
+
+    @ExceptionHandler(InvalidDocumentStatusException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidStatus(
+            InvalidDocumentStatusException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null
+                        )
+                );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(
+            IllegalArgumentException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null
+                        )
+                );
+    }
 }

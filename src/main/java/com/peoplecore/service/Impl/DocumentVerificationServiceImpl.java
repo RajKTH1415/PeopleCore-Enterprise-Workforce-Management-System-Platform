@@ -26,21 +26,40 @@ public class DocumentVerificationServiceImpl implements DocumentVerificationServ
     }
 
     @Override
-    public DocumentResponse verifyDocument(String documentId, HttpServletRequest request) {
-        EmployeeDocument document = employeeDocumentRepository.findByDocumentId(documentId)
-                        .orElseThrow(() ->
-                                new RuntimeException("Document not found"));
+    @Transactional
+    public DocumentResponse verifyDocument(String documentId,
+                                           HttpServletRequest request) {
+
+        if (documentId == null || documentId.isBlank()) {
+            throw new IllegalArgumentException("Document ID cannot be empty");
+        }
+
+        EmployeeDocument document = employeeDocumentRepository
+                .findByDocumentId(documentId)
+                .orElseThrow(() ->
+                        new DocumentNotFoundException(
+                                "Document not found with ID : " + documentId));
+
+        if ("VERIFIED".equalsIgnoreCase(document.getVerificationStatus())) {
+            throw new DocumentAlreadyVerifiedException(
+                    "Document is already verified");
+        }
+
+        if ("REJECTED".equalsIgnoreCase(document.getVerificationStatus())) {
+            throw new InvalidDocumentStatusException(
+                    "Rejected document cannot be verified");
+        }
 
         String oldStatus = document.getVerificationStatus();
 
         document.setVerificationStatus("VERIFIED");
         document.setStatus("ACTIVE");
         document.setVerifiedBy(1L);
-
         document.setVerifiedAt(LocalDateTime.now());
         document.setUpdatedAt(LocalDateTime.now());
 
-        EmployeeDocument savedDocument = employeeDocumentRepository.save(document);
+        EmployeeDocument savedDocument =
+                employeeDocumentRepository.save(document);
 
         saveAudit(
                 savedDocument,
