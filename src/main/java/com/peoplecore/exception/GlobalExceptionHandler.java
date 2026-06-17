@@ -376,4 +376,20 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+    @ExceptionHandler(UnauthorizedResourceAccessException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUnauthorizedResourceAccessException(
+            UnauthorizedResourceAccessException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(
+                        ApiResponse.error(
+                                HttpStatus.FORBIDDEN,
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                null
+                        )
+                );
+    }
 }
