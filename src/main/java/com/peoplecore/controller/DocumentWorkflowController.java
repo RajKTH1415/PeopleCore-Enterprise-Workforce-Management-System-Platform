@@ -59,7 +59,7 @@ public class DocumentWorkflowController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Workflow deleted successfully", request.getRequestURI(), null));
     }
     @PostMapping("/templates")
-    public ResponseEntity<ApiResponse<WorkflowTemplate>> createTemplate(@RequestBody WorkflowTemplateRequest request, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<WorkflowTemplate>> createTemplate( @Valid @RequestBody WorkflowTemplateRequest request, HttpServletRequest httpServletRequest) {
         WorkflowTemplate response = documentWorkflowService.createWorkflowTemplate(request, httpServletRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED.value(), "Workflow template created successfully", httpServletRequest.getRequestURI(), response));
     }

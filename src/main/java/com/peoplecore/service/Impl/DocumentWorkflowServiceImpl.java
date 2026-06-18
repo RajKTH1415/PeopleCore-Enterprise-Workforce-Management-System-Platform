@@ -281,14 +281,26 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
             HttpServletRequest httpServletRequest
     ) {
 
+        if (request == null) {
+            throw new BadRequestException(
+                    "Request body cannot be null");
+        }
+
+        if (workflowTemplateRepository
+                .existsByTemplateNameIgnoreCase(
+                        request.getTemplateName())) {
+
+            throw new BadRequestException(
+                    "Workflow template already exists with name : "
+                            + request.getTemplateName());
+        }
+
         WorkflowTemplate template =
                 WorkflowTemplate.builder()
                         .templateName(
-                                request.getTemplateName()
-                        )
+                                request.getTemplateName().trim())
                         .description(
-                                request.getDescription()
-                        )
+                                request.getDescription())
                         .active(true)
                         .build();
 
