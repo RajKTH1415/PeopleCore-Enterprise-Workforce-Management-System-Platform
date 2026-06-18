@@ -8,6 +8,7 @@ import com.peoplecore.service.DocumentWorkflowService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class DocumentWorkflowController {
     }
 
     @GetMapping("/{documentId}")
-    public ResponseEntity<ApiResponse<List<DocumentApprovalWorkflow>>> getWorkflowByDocumentId(@PathVariable String documentId, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<List<DocumentApprovalWorkflow>>> getWorkflowByDocumentId(@PathVariable  @NotBlank(message = "Document id is required")String documentId, HttpServletRequest httpServletRequest) {
         List<DocumentApprovalWorkflow> response = documentWorkflowService.getWorkflowByDocumentId(documentId, httpServletRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Workflow fetched successfully", httpServletRequest.getRequestURI(), response));
     }

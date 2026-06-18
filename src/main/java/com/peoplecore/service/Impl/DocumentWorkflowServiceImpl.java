@@ -108,15 +108,27 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
             String documentId,
             HttpServletRequest request) {
 
+        if (documentId == null || documentId.isBlank()) {
+            throw new BadRequestException(
+                    "Document id cannot be null or empty");
+        }
+
         employeeDocumentRepository.findByDocumentId(documentId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Document not found with id : " + documentId));
 
-        return documentApprovalWorkflowRepository
-                .findByDocumentIdOrderByApprovalLevelAsc(documentId);
-    }
+        List<DocumentApprovalWorkflow> workflows =
+                documentApprovalWorkflowRepository
+                        .findByDocumentIdOrderByApprovalLevelAsc(documentId);
 
+        if (workflows.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No workflow found for document id : " + documentId);
+        }
+
+        return workflows;
+    }
     @Override
     @Transactional
     public DocumentApprovalWorkflow updateWorkflow(
