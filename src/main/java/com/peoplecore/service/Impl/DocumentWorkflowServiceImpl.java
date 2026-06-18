@@ -2,6 +2,7 @@ package com.peoplecore.service.Impl;
 import com.peoplecore.dto.request.ApprovalWorkflowRequest;
 import com.peoplecore.dto.request.UpdateWorkflowRequest;
 import com.peoplecore.dto.request.WorkflowTemplateRequest;
+import com.peoplecore.exception.BadRequestException;
 import com.peoplecore.exception.ResourceNotFoundException;
 import com.peoplecore.module.ApprovalAuditLog;
 import com.peoplecore.module.DocumentApprovalWorkflow;
@@ -39,29 +40,48 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
             HttpServletRequest httpServletRequest
     ) {
 
+        if (documentId == null || documentId.isBlank()) {
+            throw new BadRequestException("Document id cannot be null or empty");
+        }
+
+        if (request == null ||
+                request.getWorkflowLevels() == null ||
+                request.getWorkflowLevels().isEmpty()) {
+
+            throw new BadRequestException(
+                    "Workflow levels are required");
+        }
+
+        LocalDateTime currentTime = LocalDateTime.now();
+
         List<DocumentApprovalWorkflow> workflows =
                 request.getWorkflowLevels()
                         .stream()
-                        .map(level ->
-                                DocumentApprovalWorkflow.builder()
-                                        .documentId(documentId)
-                                        .approvalLevel(
-                                                level.getApprovalLevel()
-                                        )
-                                        .approverId(
-                                                level.getApproverId()
-                                        )
-                                        .roleName(
-                                                level.getRoleName()
-                                        )
-                                        .workflowStatus(
-                                                level.getApprovalLevel() == 1
-                                                        ? "PENDING"
-                                                        : "WAITING"
-                                        )
-                                        .assignedAt(LocalDateTime.now())
-                                        .build()
-                        )
+                        .map(level -> {
+
+                            if (level.getApprovalLevel() == null) {
+                                throw new BadRequestException(
+                                        "Approval level cannot be null");
+                            }
+
+                            if (level.getApproverId() == null) {
+                                throw new BadRequestException(
+                                        "Approver id cannot be null");
+                            }
+
+                            return DocumentApprovalWorkflow.builder()
+                                    .documentId(documentId)
+                                    .approvalLevel(level.getApprovalLevel())
+                                    .approverId(level.getApproverId())
+                                    .roleName(level.getRoleName())
+                                    .workflowStatus(
+                                            level.getApprovalLevel() == 1
+                                                    ? "PENDING"
+                                                    : "WAITING"
+                                    )
+                                    .assignedAt(currentTime)
+                                    .build();
+                        })
                         .toList();
 
         List<DocumentApprovalWorkflow> savedWorkflows =
@@ -73,10 +93,8 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
                         .action("WORKFLOW_ASSIGNED")
                         .newStatus("WORKFLOW_CREATED")
                         .actionBy(1L)
-                        .actionAt(LocalDateTime.now())
-                        .remarks(
-                                "Multi-level approval workflow assigned"
-                        )
+                        .actionAt(currentTime)
+                        .remarks("Multi-level approval workflow assigned")
                         .build();
 
         approvalAuditLogRepository.save(auditLog);

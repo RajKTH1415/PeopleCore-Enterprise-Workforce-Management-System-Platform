@@ -7,6 +7,7 @@ import com.peoplecore.module.WorkflowTemplate;
 import com.peoplecore.service.DocumentWorkflowService;
 import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class DocumentWorkflowController {
     }
 
     @PostMapping("/{documentId}/assign-approval-workflow")
-    public ResponseEntity<ApiResponse<List<DocumentApprovalWorkflow>>> assignApprovalWorkflow(@PathVariable String documentId, @RequestBody ApprovalWorkflowRequest requestBody, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<List<DocumentApprovalWorkflow>>> assignApprovalWorkflow(@PathVariable String documentId, @Valid @RequestBody ApprovalWorkflowRequest requestBody, HttpServletRequest httpServletRequest) {
         List<DocumentApprovalWorkflow> response = documentWorkflowService.assignApprovalWorkflow(documentId, requestBody, httpServletRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Approval workflow assigned successfully", httpServletRequest.getRequestURI(), response));
     }
