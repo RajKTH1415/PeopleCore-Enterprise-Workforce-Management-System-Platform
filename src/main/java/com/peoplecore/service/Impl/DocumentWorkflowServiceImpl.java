@@ -234,10 +234,27 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
             HttpServletRequest request
     ) {
 
+        if (workflowId == null) {
+            throw new BadRequestException(
+                    "Workflow id cannot be null");
+        }
+
         DocumentApprovalWorkflow workflow =
                 documentApprovalWorkflowRepository.findById(workflowId)
                         .orElseThrow(() ->
-                                new RuntimeException("Workflow not found"));
+                                new ResourceNotFoundException(
+                                        "Workflow not found with id : "
+                                                + workflowId));
+
+        // Optional Business Validation
+        if ("APPROVED".equalsIgnoreCase(
+                workflow.getWorkflowStatus())) {
+
+            throw new BadRequestException(
+                    "Approved workflow cannot be deleted");
+        }
+
+        String oldStatus = workflow.getWorkflowStatus();
 
         documentApprovalWorkflowRepository.delete(workflow);
 
@@ -245,11 +262,13 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
                 ApprovalAuditLog.builder()
                         .documentId(workflow.getDocumentId())
                         .action("WORKFLOW_DELETED")
-                        .oldStatus(workflow.getWorkflowStatus())
+                        .oldStatus(oldStatus)
                         .newStatus("DELETED")
                         .actionBy(1L)
                         .actionAt(LocalDateTime.now())
-                        .remarks("Workflow deleted")
+                        .remarks(
+                                "Workflow deleted. Workflow Id : "
+                                        + workflowId)
                         .build();
 
         approvalAuditLogRepository.save(auditLog);

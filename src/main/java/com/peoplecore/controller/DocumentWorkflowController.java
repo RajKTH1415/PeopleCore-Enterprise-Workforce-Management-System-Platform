@@ -9,11 +9,15 @@ import com.peoplecore.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/documents/workflow")
 public class DocumentWorkflowController {
@@ -49,7 +53,8 @@ public class DocumentWorkflowController {
     }
 
     @DeleteMapping("/{workflowId}")
-    public ResponseEntity<ApiResponse<Void>> deleteWorkflow(@PathVariable Long workflowId, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>> deleteWorkflow(@PathVariable  @NotNull(message = "Workflow id is required")
+                                                                @Positive(message = "Workflow id must be greater than zero")Long workflowId, HttpServletRequest request) {
         documentWorkflowService.deleteWorkflow(workflowId, request);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "Workflow deleted successfully", request.getRequestURI(), null));
     }
