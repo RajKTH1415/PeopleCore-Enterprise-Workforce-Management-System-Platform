@@ -104,8 +104,7 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<DocumentApprovalWorkflow> getWorkflowByDocumentId(
-            String documentId,
+    public List<DocumentApprovalWorkflow> getWorkflowByDocumentId(String documentId,
             HttpServletRequest request) {
 
         if (documentId == null || documentId.isBlank()) {
