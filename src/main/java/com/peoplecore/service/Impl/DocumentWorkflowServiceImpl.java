@@ -214,11 +214,19 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<WorkflowTemplate> getWorkflowTemplates() {
 
-        return workflowTemplateRepository.findAll();
-    }
+        List<WorkflowTemplate> templates =
+                workflowTemplateRepository.findAll();
 
+        if (templates.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No workflow templates found");
+        }
+
+        return templates;
+    }
     @Override
     @Transactional
     public void deleteWorkflow(
