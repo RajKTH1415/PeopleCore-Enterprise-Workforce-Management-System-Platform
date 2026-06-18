@@ -38,7 +38,7 @@ public class DocumentWorkflowController {
     }
 
     @PutMapping("/{workflowId}")
-    public ResponseEntity<ApiResponse<DocumentApprovalWorkflow>> updateWorkflow(@PathVariable Long workflowId, @RequestBody UpdateWorkflowRequest request, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<DocumentApprovalWorkflow>> updateWorkflow(@PathVariable Long workflowId, @Valid @RequestBody UpdateWorkflowRequest request, HttpServletRequest httpServletRequest) {
         DocumentApprovalWorkflow response = documentWorkflowService.updateWorkflow(workflowId, request, httpServletRequest);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK.value(), "Workflow updated successfully", httpServletRequest.getRequestURI(), response));
     }

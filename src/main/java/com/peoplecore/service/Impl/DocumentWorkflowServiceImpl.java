@@ -136,26 +136,61 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
             HttpServletRequest httpServletRequest
     ) {
 
+        if (workflowId == null) {
+            throw new BadRequestException(
+                    "Workflow id cannot be null");
+        }
+
         DocumentApprovalWorkflow workflow =
                 documentApprovalWorkflowRepository.findById(workflowId)
                         .orElseThrow(() ->
-                                new RuntimeException("Workflow not found"));
+                                new ResourceNotFoundException(
+                                        "Workflow not found with id : "
+                                                + workflowId));
+
+        if (request.getApprovalLevel() <= 0) {
+            throw new BadRequestException(
+                    "Approval level must be greater than zero");
+        }
+
+        if (request.getApproverId() == null) {
+            throw new BadRequestException(
+                    "Approver id cannot be null");
+        }
+
+        if (request.getRoleName() == null ||
+                request.getRoleName().isBlank()) {
+
+            throw new BadRequestException(
+                    "Role name cannot be empty");
+        }
+
+        List<String> validStatuses =
+                List.of("PENDING",
+                        "WAITING",
+                        "APPROVED",
+                        "REJECTED");
+
+        if (!validStatuses.contains(
+                request.getWorkflowStatus())) {
+
+            throw new BadRequestException(
+                    "Invalid workflow status");
+        }
+
+        String oldStatus = workflow.getWorkflowStatus();
 
         workflow.setApprovalLevel(
-                request.getApprovalLevel()
-        );
+                request.getApprovalLevel());
 
         workflow.setApproverId(
-                request.getApproverId()
-        );
+                request.getApproverId());
 
         workflow.setRoleName(
-                request.getRoleName()
-        );
+                request.getRoleName());
 
         workflow.setWorkflowStatus(
-                request.getWorkflowStatus()
-        );
+                request.getWorkflowStatus());
 
         DocumentApprovalWorkflow updatedWorkflow =
                 documentApprovalWorkflowRepository.save(workflow);
@@ -164,14 +199,13 @@ public class DocumentWorkflowServiceImpl implements DocumentWorkflowService {
                 ApprovalAuditLog.builder()
                         .documentId(workflow.getDocumentId())
                         .action("WORKFLOW_UPDATED")
-                        .oldStatus("UPDATED")
+                        .oldStatus(oldStatus)
                         .newStatus(request.getWorkflowStatus())
                         .actionBy(1L)
                         .actionAt(LocalDateTime.now())
                         .remarks(
                                 "Workflow updated. Workflow Id : "
-                                        + workflowId
-                        )
+                                        + workflowId)
                         .build();
 
         approvalAuditLogRepository.save(auditLog);
